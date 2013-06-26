@@ -1,4 +1,4 @@
-h1. License
+# License
 
 Copyright (c) 2007-2013, Christian Kaps
 All rights reserved.

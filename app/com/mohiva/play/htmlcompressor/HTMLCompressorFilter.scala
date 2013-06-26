@@ -4,11 +4,11 @@
  * LICENSE
  *
  * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.textile.
+ * with this package in the file LICENSE.md.
  * It is also available through the world-wide-web at this URL:
- * https://github.com/mohiva/play-html-compressor/blob/master/LICENSE.textile
+ * https://github.com/mohiva/play-html-compressor/blob/master/LICENSE.md
  */
-package com.mohiva.filters
+package com.mohiva.play.htmlcompressor
 
 import play.api.Play
 import play.api.Play.current
@@ -22,13 +22,13 @@ import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 /**
  * Uses Google's HTML Processor to compress the HTML code of a response.
  *
- * @param configurator The HTML compressor configurator.
+ * @param f Function which returns the configured HTML compressor.
  *
  * @see http://jazzy.id.au/default/2013/02/16/understanding_the_play_filter_api.html
  * @see http://stackoverflow.com/questions/14154671/is-it-possible-to-prettify-scala-templates-using-play-framework-2
  * @author Christian Kaps `christian.kaps@mohiva.com`
  */
-class HTMLCompressorFilter(implicit val configurator: HTMLCompressorConfigurator) extends EssentialFilter {
+class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
 
   /**
    * The charset used by Play.
@@ -38,7 +38,7 @@ class HTMLCompressorFilter(implicit val configurator: HTMLCompressorConfigurator
   /**
    * The HTML compressor instance.
    */
-  lazy val compressor = configurator.configure
+  lazy val compressor = f
 
   /**
    * Apply the filter.
@@ -65,9 +65,7 @@ class HTMLCompressorFilter(implicit val configurator: HTMLCompressorConfigurator
     case simple @ SimpleResult(header, bodyEnumerator) if isHtml(simple) => SimpleResult(
       header, Enumerator.flatten(
         Iteratee.flatten(bodyEnumerator.apply(bodyAsString)).run.map { str =>
-          Enumerator.unfold(str) { content =>
-            if (content.isEmpty) None else Some("" -> compressor.compress(content.trim))
-          }
+          Enumerator(compressor.compress(str.trim))
         }
       )
     )
@@ -107,25 +105,16 @@ object HTMLCompressorFilter {
    *
    * @return The HTML compressor filter.
    */
-  def apply(): HTMLCompressorFilter = new HTMLCompressorFilter()
-
-  /**
-   * Creates the HTML compressor configurator.
-   *
-   * @return The HTML compressor configurator.
-   */
-  implicit def configurator: HTMLCompressorConfigurator = new HTMLCompressorConfigurator {
-    def configure: HtmlCompressor = {
-      val compressor = new HtmlCompressor()
-      if (Play.isDev) {
-        compressor.setPreserveLineBreaks(true)
-      }
-
-      compressor.setRemoveComments(true)
-      compressor.setRemoveIntertagSpaces(true)
-      compressor.setRemoveHttpProtocol(true)
-      compressor.setRemoveHttpsProtocol(true)
-      compressor
+  def apply(): HTMLCompressorFilter = new HTMLCompressorFilter({
+    val compressor = new HtmlCompressor()
+    if (Play.isDev) {
+      compressor.setPreserveLineBreaks(true)
     }
-  }
+
+    compressor.setRemoveComments(true)
+    compressor.setRemoveIntertagSpaces(true)
+    compressor.setRemoveHttpProtocol(true)
+    compressor.setRemoveHttpsProtocol(true)
+    compressor
+  })
 }

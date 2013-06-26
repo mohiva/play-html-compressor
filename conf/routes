@@ -1,0 +1,8 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /         com.mohiva.play.htmlcompressor.test.controllers.Application.index
+GET     /async    com.mohiva.play.htmlcompressor.test.controllers.Application.async
+GET     /text     com.mohiva.play.htmlcompressor.test.controllers.Application.text
