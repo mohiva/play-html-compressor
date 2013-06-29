@@ -65,7 +65,7 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
     case simple @ SimpleResult(header, bodyEnumerator) if isHtml(simple) => SimpleResult(
       header, Enumerator.flatten(
         Iteratee.flatten(bodyEnumerator.apply(bodyAsString)).run.map { str =>
-          Enumerator(compressor.compress(str.trim))
+          Enumerator(compressor.compress(str.trim).getBytes(charset))
         }
       )
     )
@@ -90,8 +90,10 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
    * @return The body of a result as string.
    */
   private def bodyAsString[A] = Iteratee.fold[A, String]("") { (str, body) => body match {
-    case template: Html => template.body
+    case string: String => str + string
+    case template: Html => str + template.body
     case bytes: Array[Byte] => str + new String(bytes, charset)
+    case _ => throw new Exception("Unexpected body: " + body)
   }}
 }
 
