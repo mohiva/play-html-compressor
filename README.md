@@ -49,7 +49,7 @@ import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
 
 /**
- * Uses a user defined implementation of the HTML compressor filter.
+ * Uses a user-defined implementation of the HTML compressor filter.
  */
 object Global extends WithFilters(HTMLCompressorFilter())
 
