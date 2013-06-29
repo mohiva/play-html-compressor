@@ -1,5 +1,4 @@
-# Google's HTML Compressor for Play Framework 2.1(Scala)
-
+# Google's HTML Compressor for Play Framework 2.1(Scala)[![Build Status](https://secure.travis-ci.org/mohiva/play-html-compressor.png)](http://travis-ci.org/mohiva/play-html-compressor)
 
 ## How to use
 
