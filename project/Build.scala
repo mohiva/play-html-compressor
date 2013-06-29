@@ -41,6 +41,7 @@ object ApplicationBuild extends Build {
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
-    pomExtra := pom
+    pomExtra := pom,
+    credentials += Credentials(Path.userHome / ".sbt" / "sonatype.credentials")
   )
 }
