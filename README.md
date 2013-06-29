@@ -1,10 +1,32 @@
 # Google's HTML Compressor for Play Framework 2.1(Scala)[![Build Status](https://secure.travis-ci.org/mohiva/play-html-compressor.png)](http://travis-ci.org/mohiva/play-html-compressor)
 
+## Instalation
+
+Note: The module is currently only available as snapshot.
+
+In your project/Build.scala:
+```scala
+libraryDependencies ++= Seq(
+  "com.mohiva" %% "play-html-compressor" % "0.1"
+)
+```
+
+If you want to use the latest snapshot, add the following instead:
+```scala
+resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+
+libraryDependencies ++= Seq(
+  "com.mohiva" %% "play-html-compressor" % "0.1-SNAPSHOT"
+)
+```
+
 ## How to use
 
 The filter comes with a built-in `HtmlCompressor` configuration, but it can also be used with a user-defined configuration. The follwing two examples shows how to define the filter with the default and the user-defined configuration.
 
 ### Default filter
+
+The default filter has the same configuration as the user-defined filter below.
 
 ```scala
 import play.api.mvc.WithFilters
