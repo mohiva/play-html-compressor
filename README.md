@@ -1,4 +1,4 @@
-# Google's HTML Compressor for Play Framework 2(Scala)
+# Google's HTML Compressor for Play Framework 2.1(Scala)
 
 
 ## How to use
