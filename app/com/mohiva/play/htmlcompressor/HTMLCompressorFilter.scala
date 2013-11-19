@@ -17,6 +17,7 @@ import play.api.templates.Html
 import play.api.http.{MimeTypes, HeaderNames}
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 
 /**
@@ -28,7 +29,7 @@ import com.googlecode.htmlcompressor.compressor.HtmlCompressor
  * @see http://stackoverflow.com/questions/14154671/is-it-possible-to-prettify-scala-templates-using-play-framework-2
  * @author Christian Kaps `christian.kaps@mohiva.com`
  */
-class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
+class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
 
   /**
    * The charset used by Play.
@@ -46,11 +47,9 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
    * @param next The action to filter.
    * @return The filtered action.
    */
-  def apply(next: EssentialAction) = new EssentialAction {
-    def apply(request: RequestHeader) = next(request).map {
-      case plain: PlainResult => compressResult(plain)
-      case async: AsyncResult => async.transform(compressResult)
-    }
+  def apply(nextFilter: (RequestHeader) => Future[SimpleResult])
+           (requestHeader: RequestHeader): Future[SimpleResult] = {
+    nextFilter(requestHeader).map { result => compressResult(result) }
   }
 
   /**
@@ -61,14 +60,14 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
    * @param result The result to compress.
    * @return The compressed result.
    */
-  private def compressResult(result: PlainResult): Result = result match {
-    case simple @ SimpleResult(header, bodyEnumerator) if isHtml(simple) => SimpleResult(
-      header, Enumerator.flatten(
+  private def compressResult(result: SimpleResult): SimpleResult = result match {
+    case simple @ SimpleResult(header, bodyEnumerator, connection) if isHtml(simple) => SimpleResult(
+      header,
+      Enumerator.flatten(
         Iteratee.flatten(bodyEnumerator.apply(bodyAsString)).run.map { str =>
           Enumerator(compressor.compress(str.trim).getBytes(charset))
-        }
-      )
-    )
+        }),
+      connection)
     case _ => result
   }
 
@@ -78,7 +77,7 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends EssentialFilter {
    * @param result The result to check.
    * @return True if the result is a HTML result, false otherwise.
    */
-  private def isHtml(result: SimpleResult[Any]) = {
+  private def isHtml(result: SimpleResult) = {
     result.header.headers.contains(HeaderNames.CONTENT_TYPE) &&
     result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains(MimeTypes.HTML) &&
     manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)

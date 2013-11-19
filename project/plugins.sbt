@@ -4,11 +4,9 @@ logLevel := Level.Warn
 // The Typesafe repository
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-// Repository for the xsbt-gpg-plugin
-resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
-
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("play" % "sbt-plugin" % "2.1.1")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 
 // Use the PGP plugin to sign the artefacts
-addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.6")
+// http://www.scala-sbt.org/sbt-pgp/
+addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.1")

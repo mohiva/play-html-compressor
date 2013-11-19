@@ -32,18 +32,18 @@ class FilterSpec extends Specification {
 
   "Filter" should {
 
-    "compress a HTML page" in new WithApplication with Context {
+    "compress an HTML page" in new WithApplication with Context {
       val action = Filters(Action(Ok(template)), HTMLCompressorFilter())
-      val result = await(action(FakeRequest()).run)
+      val result = action(FakeRequest()).run
 
       status(result) must equalTo(OK)
       contentType(result) must beSome("text/html")
       contentAsString(result) must startWith("<!DOCTYPE html><html><head>")
     }
 
-    "compress a async HTML page" in new WithApplication with Context {
-      val action = Filters(Action(Async(Future(Ok(template)))), HTMLCompressorFilter())
-      val result = await(action(FakeRequest()).run)
+    "compress an async HTML page" in new WithApplication with Context {
+      val action = Filters(Action.async(Future(Ok(template))), HTMLCompressorFilter())
+      val result = action(FakeRequest()).run
 
       status(result) must equalTo(OK)
       contentType(result) must beSome("text/html")
@@ -52,7 +52,7 @@ class FilterSpec extends Specification {
 
     "not compress a non HTML result" in new WithApplication {
       val action = Filters(Action(Ok("  <html/>")), HTMLCompressorFilter())
-      val result = await(action(FakeRequest()).run)
+      val result = action(FakeRequest()).run
 
       status(result) must equalTo(OK)
       contentType(result) must beSome("text/plain")

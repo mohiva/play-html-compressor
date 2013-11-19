@@ -1,4 +1,4 @@
-# Google's HTML Compressor for Play Framework 2.1(Scala)[![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
+# Google's HTML Compressor for Play Framework 2.2(Scala)[![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
 
 ## Installation
 
@@ -7,7 +7,7 @@ Note: The module is currently only available as snapshot.
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.1"
+  "com.mohiva" %% "play-html-compressor" % "0.2"
 )
 ```
 
@@ -16,7 +16,7 @@ If you want to use the latest snapshot, add the following instead:
 resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.1-SNAPSHOT"
+  "com.mohiva" %% "play-html-compressor" % "0.2-SNAPSHOT"
 )
 ```
 
