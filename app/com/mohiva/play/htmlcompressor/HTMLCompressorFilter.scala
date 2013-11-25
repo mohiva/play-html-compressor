@@ -47,9 +47,8 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    * @param next The action to filter.
    * @return The filtered action.
    */
-  def apply(nextFilter: (RequestHeader) => Future[SimpleResult])
-           (requestHeader: RequestHeader): Future[SimpleResult] = {
-    nextFilter(requestHeader).map { result => compressResult(result) }
+  def apply(next: (RequestHeader) => Future[SimpleResult])(rh: RequestHeader) = {
+    next(rh).map(result => compressResult(result))
   }
 
   /**
@@ -60,16 +59,13 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    * @param result The result to compress.
    * @return The compressed result.
    */
-  private def compressResult(result: SimpleResult): SimpleResult = result match {
-    case simple @ SimpleResult(header, bodyEnumerator, connection) if isHtml(simple) => SimpleResult(
-      header,
-      Enumerator.flatten(
-        Iteratee.flatten(bodyEnumerator.apply(bodyAsString)).run.map { str =>
-          Enumerator(compressor.compress(str.trim).getBytes(charset))
-        }),
-      connection)
-    case _ => result
-  }
+  private def compressResult(result: SimpleResult) = if (isHtml(result)) {
+    result.copy(body = Enumerator.flatten(
+      Iteratee.flatten(result.body.apply(bodyAsString)).run.map { str =>
+        Enumerator(compressor.compress(str.trim).getBytes(charset))
+      }
+    ))
+  } else result
 
   /**
    * Check if the given result is a HTML result.
