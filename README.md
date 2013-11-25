@@ -20,6 +20,8 @@ libraryDependencies ++= Seq(
 )
 ```
 
+For Play Framework 2.1 use the 0.1 snapshot.
+
 ## How to use
 
 The filter comes with a built-in `HtmlCompressor` configuration, but it can also be used with a user-defined configuration. The follwing two examples shows how to define the filter with the default and the user-defined configuration.
