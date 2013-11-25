@@ -80,3 +80,7 @@ object HTMLCompressorFilter {
 }
 
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mohiva/play-html-compressor/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
