@@ -42,6 +42,23 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
   lazy val compressor = f
 
   /**
+   * Make this filter work in Java. 
+   */
+  def this() = this({
+    val compressor = new HtmlCompressor()
+    if (Play.isDev) {
+      compressor.setPreserveLineBreaks(true)
+    }
+
+    compressor.setRemoveComments(true)
+    compressor.setRemoveIntertagSpaces(true)
+    compressor.setRemoveHttpProtocol(true)
+    compressor.setRemoveHttpsProtocol(true)
+    compressor
+  })
+
+
+  /**
    * Apply the filter.
    *
    * @param next The action to filter.
