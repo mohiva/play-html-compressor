@@ -10,12 +10,12 @@
  */
 package com.mohiva.play.htmlcompressor
 
+import play.api.mvc._
 import play.api.Play
 import play.api.Play.current
-import play.api.mvc._
 import play.api.templates.Html
-import play.api.http.{MimeTypes, HeaderNames}
-import play.api.libs.iteratee.{Enumerator, Iteratee}
+import play.api.http.{ MimeTypes, HeaderNames }
+import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
@@ -75,8 +75,8 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    */
   private def isHtml(result: SimpleResult) = {
     result.header.headers.contains(HeaderNames.CONTENT_TYPE) &&
-    result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains(MimeTypes.HTML) &&
-    manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)
+      result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains(MimeTypes.HTML) &&
+      manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)
   }
 
   /**
@@ -84,12 +84,14 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    *
    * @return The body of a result as string.
    */
-  private def bodyAsString[A] = Iteratee.fold[A, String]("") { (str, body) => body match {
-    case string: String => str + string
-    case template: Html => str + template.body
-    case bytes: Array[Byte] => str + new String(bytes, charset)
-    case _ => throw new Exception("Unexpected body: " + body)
-  }}
+  private def bodyAsString[A] = Iteratee.fold[A, String]("") { (str, body) =>
+    body match {
+      case string: String => str + string
+      case template: Html => str + template.body
+      case bytes: Array[Byte] => str + new String(bytes, charset)
+      case _ => throw new Exception("Unexpected body: " + body)
+    }
+  }
 }
 
 /**
@@ -98,11 +100,9 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
 object HTMLCompressorFilter {
 
   /**
-   * Creates the HTML compressor filter.
-   *
-   * @return The HTML compressor filter.
+   * Gets the default Google HTML compressor instance.
    */
-  def apply(): HTMLCompressorFilter = new HTMLCompressorFilter({
+  lazy val default = {
     val compressor = new HtmlCompressor()
     if (Play.isDev) {
       compressor.setPreserveLineBreaks(true)
@@ -113,5 +113,12 @@ object HTMLCompressorFilter {
     compressor.setRemoveHttpProtocol(true)
     compressor.setRemoveHttpsProtocol(true)
     compressor
-  })
+  }
+
+  /**
+   * Creates the HTML compressor filter.
+   *
+   * @return The HTML compressor filter.
+   */
+  def apply(): HTMLCompressorFilter = new HTMLCompressorFilter(default)
 }
