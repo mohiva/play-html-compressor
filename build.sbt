@@ -1,5 +1,6 @@
 import play.Project._
 import com.typesafe.sbt.SbtScalariform._
+import xerial.sbt.Sonatype._
 
 //*******************************
 // Play settings
@@ -7,7 +8,7 @@ import com.typesafe.sbt.SbtScalariform._
 
 name := "play-html-compressor"
 
-version := "0.2.1-SNAPSHOT"
+version := "0.2.1"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
@@ -19,6 +20,8 @@ playScalaSettings
 //*******************************
 // Maven settings
 //*******************************
+
+sonatypeSettings
 
 organization := "com.mohiva"
 
@@ -47,14 +50,6 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := pom
-
-publishTo <<= version { v: String =>
-  val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
 
 credentials += Credentials(Path.userHome / ".sbt" / "sonatype.credentials")
 
