@@ -2,8 +2,6 @@
 
 ## Installation
 
-Note: The module is currently only available as snapshot.
-
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
