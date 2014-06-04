@@ -1,4 +1,5 @@
-import play.Project._
+import play.Play.autoImport._
+import PlayKeys._
 import com.typesafe.sbt.SbtScalariform._
 import xerial.sbt.Sonatype._
 
@@ -15,7 +16,9 @@ libraryDependencies ++= Seq(
   "rhino" % "js" % "1.7R2"
 )
 
-playScalaSettings
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
+scalaVersion := "2.11.1"
 
 //*******************************
 // Maven settings

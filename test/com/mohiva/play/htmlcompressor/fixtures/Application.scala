@@ -1,8 +1,8 @@
 package com.mohiva.play.htmlcompressor.fixtures
 
 import play.api.mvc._
-import play.api.templates.Html
 import scala.concurrent.Future
+import play.twirl.api.Html
 
 /**
  * Test controller.

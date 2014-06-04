@@ -13,12 +13,12 @@ package com.mohiva.play.htmlcompressor
 import play.api.mvc._
 import play.api.Play
 import play.api.Play.current
-import play.api.templates.Html
 import play.api.http.{ MimeTypes, HeaderNames }
 import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
+import play.twirl.api.Html
 
 /**
  * Uses Google's HTML Processor to compress the HTML code of a response.
@@ -47,7 +47,7 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    * @param next The action to filter.
    * @return The filtered action.
    */
-  def apply(next: (RequestHeader) => Future[SimpleResult])(rh: RequestHeader) = {
+  def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader) = {
     next(rh).map(result => compressResult(result))
   }
 
@@ -59,7 +59,7 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    * @param result The result to compress.
    * @return The compressed result.
    */
-  private def compressResult(result: SimpleResult) = if (isHtml(result)) {
+  private def compressResult(result: Result) = if (isHtml(result)) {
     result.copy(body = Enumerator.flatten(
       Iteratee.flatten(result.body.apply(bodyAsString)).run.map { str =>
         Enumerator(compressor.compress(str.trim).getBytes(charset))
@@ -73,7 +73,7 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends Filter {
    * @param result The result to check.
    * @return True if the result is a HTML result, false otherwise.
    */
-  private def isHtml(result: SimpleResult) = {
+  private def isHtml(result: Result) = {
     result.header.headers.contains(HeaderNames.CONTENT_TYPE) &&
       result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains(MimeTypes.HTML) &&
       manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)
