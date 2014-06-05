@@ -10,6 +10,7 @@
  */
 package com.mohiva.play.htmlcompressor
 
+import play.twirl.api.Html
 import play.api.mvc._
 import play.api.Play
 import play.api.Play.current
@@ -18,7 +19,6 @@ import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
-import play.twirl.api.Html
 
 /**
  * Uses Google's HTML Processor to compress the HTML code of a response.
