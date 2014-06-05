@@ -5,7 +5,7 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.2.1"
+  "com.mohiva" %% "play-html-compressor" % "0.3"
 )
 ```
 
@@ -14,11 +14,15 @@ If you want to use the latest snapshot, add the following instead:
 resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.2.1-SNAPSHOT"
+  "com.mohiva" %% "play-html-compressor" % "0.3-SNAPSHOT"
 )
 ```
 
-For Play Framework 2.1 use the 0.1 snapshot.
+### History
+
+* For Play Framework 2.3 use version 0.3
+* For Play Framework 2.2 use version 0.2.1
+* For Play Framework 2.1 use version 0.1-SNAPSHOT
 
 ## How to use
 
