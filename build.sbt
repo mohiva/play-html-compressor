@@ -1,5 +1,4 @@
-import play.Play.autoImport._
-import PlayKeys._
+import play.PlayScala
 import com.typesafe.sbt.SbtScalariform._
 import xerial.sbt.Sonatype._
 
@@ -9,7 +8,7 @@ import xerial.sbt.Sonatype._
 
 name := "play-html-compressor"
 
-version := "0.2.1"
+version := "0.3"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",

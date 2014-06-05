@@ -10,14 +10,14 @@
  */
 package com.mohiva.play.htmlcompressor
 
+import org.specs2.mutable._
 import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
-import org.specs2.mutable._
 import play.api.test.FakeApplication
-import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import play.api.{ GlobalSettings, Play }
 import play.api.Play.current
+import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 
 /**
  * Test case for the [[com.mohiva.play.htmlcompressor.HTMLCompressorFilter]] class.
