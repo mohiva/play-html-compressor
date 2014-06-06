@@ -17,8 +17,6 @@ libraryDependencies ++= Seq(
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.1"
-
 //*******************************
 // Maven settings
 //*******************************
@@ -64,6 +62,10 @@ parallelExecution in Test := false
 //*******************************
 // Compiler settings
 //*******************************
+
+scalaVersion := "2.11.1"
+
+crossScalaVersions := Seq("2.10.4", "2.11.0")
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
