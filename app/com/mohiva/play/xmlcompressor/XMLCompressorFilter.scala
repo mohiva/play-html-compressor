@@ -54,7 +54,7 @@ class XMLCompressorFilter(f: => XmlCompressor) extends Filter {
   /**
    * Compress the result.
    *
-   * It compresses only HTML templates.
+   * It compresses only XML templates.
    *
    * @param result The result to compress.
    * @return The compressed result.
@@ -96,12 +96,12 @@ class XMLCompressorFilter(f: => XmlCompressor) extends Filter {
 }
 
 /**
- * Default implementation of the HTML compressor filter.
+ * Default implementation of the XML compressor filter.
  */
 object XMLCompressorFilter {
 
   /**
-   * Gets the default Google HTML compressor instance.
+   * Gets the default Google XML compressor instance.
    */
   lazy val default = {
     // All XmlCompressor options default to true - so nothing to do here...
@@ -109,9 +109,9 @@ object XMLCompressorFilter {
   }
 
   /**
-   * Creates the HTML compressor filter.
+   * Creates the XML compressor filter.
    *
-   * @return The HTML compressor filter.
+   * @return The XML compressor filter.
    */
   def apply(): XMLCompressorFilter = new XMLCompressorFilter(default)
 }
