@@ -98,7 +98,7 @@ class XMLCompressorFilter(f: => XmlCompressor) extends Filter {
 /**
  * Default implementation of the HTML compressor filter.
  */
-object HTMLCompressorFilter {
+object XMLCompressorFilter {
 
   /**
    * Gets the default Google HTML compressor instance.
