@@ -16,15 +16,15 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor
 /**
  * Implementation of the XML compressor filter which can be used in Java.
  *
- * @param builder A builder instance which provides a configured HTML compressor instance.
+ * @param builder A builder instance which provides a configured XML compressor instance.
  * @author Christian Kaps `christian.kaps@mohiva.com`
  */
-class HTMLCompressorFilter(val builder: XMLCompressorBuilder) extends ScalaXMLCompressorFilter(builder.build) {
+class XMLCompressorFilter(val builder: XMLCompressorBuilder) extends ScalaXMLCompressorFilter(builder.build) {
 
   /**
-   * Builds the default HTML compressor filter.
+   * Builds the default XML compressor filter.
    *
-   * @return The default HTML compressor filter.
+   * @return The default XML compressor filter.
    */
   def this() = this(new XMLCompressorBuilder {
     override def build = ScalaXMLCompressorFilter.default
@@ -32,14 +32,14 @@ class HTMLCompressorFilter(val builder: XMLCompressorBuilder) extends ScalaXMLCo
 }
 
 /**
- * Builds the Google HTML compressor instance.
+ * Builds the Google XML compressor instance.
  */
 trait XMLCompressorBuilder {
 
   /**
-   * Gets the configured HTML compressor instance.
+   * Gets the configured XML compressor instance.
    *
-   * @return The configured HTML compressor instance.
+   * @return The configured XML compressor instance.
    */
   def build: XmlCompressor
 }
