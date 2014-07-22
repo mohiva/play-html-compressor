@@ -19,6 +19,7 @@ import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
+import com.mohiva.play.compressor.AbstractCompressorFilter
 
 /**
  * Uses Google's XML Processor to compress the XML code of a response.
@@ -29,43 +30,7 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor
  * @see http://stackoverflow.com/questions/14154671/is-it-possible-to-prettify-scala-templates-using-play-framework-2
  * @author Christian Kaps `christian.kaps@mohiva.com`
  */
-class XMLCompressorFilter(f: => XmlCompressor) extends Filter {
-
-  /**
-   * The charset used by Play.
-   */
-  lazy val charset = Play.configuration.getString("default.charset").getOrElse("utf-8")
-
-  /**
-   * The XML compressor instance.
-   */
-  lazy val compressor = f
-
-  /**
-   * Apply the filter.
-   *
-   * @param next The action to filter.
-   * @return The filtered action.
-   */
-  def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader) = {
-    next(rh).map(result => compressResult(result))
-  }
-
-  /**
-   * Compress the result.
-   *
-   * It compresses only XML templates.
-   *
-   * @param result The result to compress.
-   * @return The compressed result.
-   */
-  private def compressResult(result: Result) = if (isXml(result)) {
-    result.copy(body = Enumerator.flatten(
-      Iteratee.flatten(result.body.apply(bodyAsString)).run.map { str =>
-        Enumerator(compressor.compress(str.trim).getBytes(charset))
-      }
-    ))
-  } else result
+class XMLCompressorFilter(f: => XmlCompressor) extends AbstractCompressorFilter[XmlCompressor, Xml](f) {
 
   /**
    * Check if the given result is a XML result.
@@ -73,25 +38,11 @@ class XMLCompressorFilter(f: => XmlCompressor) extends Filter {
    * @param result The result to check.
    * @return True if the result is a XML result, false otherwise.
    */
-  private def isXml(result: Result) = {
+  protected def isCompressible(result: Result) = {
     result.header.headers.contains(HeaderNames.CONTENT_TYPE) &&
-      // We cannot simple look for MimeTypes.XML because of things like "application/atom+xml".
+      // We cannot simply look for MimeTypes.XML because of things like "application/atom+xml".
       result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains("xml") &&
       manifest[Enumerator[Xml]].runtimeClass.isInstance(result.body)
-  }
-
-  /**
-   * Converts the body of a result as string.
-   *
-   * @return The body of a result as string.
-   */
-  private def bodyAsString[A] = Iteratee.fold[A, String]("") { (str, body) =>
-    body match {
-      case string: String => str + string
-      case template: Xml => str + template.body
-      case bytes: Array[Byte] => str + new String(bytes, charset)
-      case _ => throw new Exception("Unexpected body: " + body)
-    }
   }
 }
 
