@@ -159,3 +159,29 @@ public class Global extends GlobalSettings {
     }
 }
 ```
+
+### HTMLCompressorFilter & GzipFilter
+
+Be careful when using HTMLCompressorFilter in combination with the Play
+GzipFilter. HTMLCompressorFilter can not work on source that has already been
+gzipped.
+
+Unfortunately, there is no official way to control the order in which filters
+will be applied to responses.
+
+Fortunately, Play Framework will apply the filters in reverse order of
+appearance in the `WithFilters` constructor. So this code will work as expected
+(applying HTMLCompressorFilter first and GzipFilter on the compressed HTML):
+
+```scala
+object Global extends WithFilters(new GzipFilter(), HTMLCompressorFilter()) {
+  ...
+}
+```
+
+This code will _not_ work, resulting in an empty response body (or worse):
+```scala
+object Global extends WithFilters(HTMLCompressorFilter(), new GzipFilter()) {
+  ...
+}
+```
