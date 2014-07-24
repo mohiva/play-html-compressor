@@ -168,11 +168,14 @@ public class Global extends GlobalSettings {
 }
 ```
 
+<<<<<<< Upstream, based on add_xml
 #### User-defined XMLCompressorFilter
 
 You can also use a user defined XMLCompressorFilter. The approach is analogical
 to the examples given above.
 
+=======
+>>>>>>> ebf7c82 Added GzipFilter Warnign
 ### HTMLCompressorFilter & GzipFilter
 
 Be careful when using HTMLCompressorFilter in combination with the Play
