@@ -1,4 +1,4 @@
-# Google's HTML Compressor for Play Framework 2[![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
+# Google's HTML (and XML) Compressor for Play Framework 2[![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
 
 ## Installation
 
@@ -26,7 +26,10 @@ libraryDependencies ++= Seq(
 
 ## How to use
 
-The filter comes with a built-in `HtmlCompressor` configuration, but it can also be used with a user-defined configuration. The following two examples shows how to define the filter with the default and the user-defined configuration.
+The filter comes with a built-in `HtmlCompressor` and `XmlCompressor`
+configuration, but it can also be used with a user-defined configuration. The
+following two examples shows how to define the filter with the default and the
+user-defined configuration.
 
 ### Default filter
 
@@ -37,11 +40,12 @@ The default filter has the same configuration as the user-defined filter below.
 ```scala
 import play.api.mvc.WithFilters
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
+import com.mohiva.play.xmlcompressor.XMLCompressorFilter
 
 /**
- * Uses the default implementation of the HTML compressor filter.
+ * Uses the default implementation of the HTML and XML compressor filters.
  */
-object Global extends WithFilters(HTMLCompressorFilter())
+object Global extends WithFilters(HTMLCompressorFilter(), XMLCompressorFilter())
 ```
 
 #### For Java users
@@ -50,9 +54,10 @@ object Global extends WithFilters(HTMLCompressorFilter())
 import play.GlobalSettings;
 import play.api.mvc.EssentialFilter;
 import com.mohiva.play.htmlcompressor.java.HTMLCompressorFilter;
+import com.mohiva.play.xmlcompressor.java.XMLCompressorFilter;
 
 /**
- * Uses the default implementation of the HTML compressor filter.
+ * Uses the default implementation of the HTML and XML compressor filters.
  */
 public class Global extends GlobalSettings {
 
@@ -61,7 +66,10 @@ public class Global extends GlobalSettings {
      */
     @SuppressWarnings("unchecked")
     public <T extends EssentialFilter> Class<T>[] filters() {
-        return new Class[]{HTMLCompressorFilter.class};
+        return new Class[] {
+            HTMLCompressorFilter.class,
+            XMLCompressorFilter.class
+        };
     }
 }
 ```
@@ -159,6 +167,11 @@ public class Global extends GlobalSettings {
     }
 }
 ```
+
+#### User-defined XMLCompressorFilter
+
+You can also use a user defined XMLCompressorFilter. The approach is analogical
+to the examples given above.
 
 ### HTMLCompressorFilter & GzipFilter
 
