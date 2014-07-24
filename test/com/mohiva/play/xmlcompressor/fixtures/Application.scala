@@ -1,13 +1,10 @@
 package com.mohiva.play.xmlcompressor.fixtures
 
 import play.api.mvc._
-import play.twirl.api.Html
 import scala.concurrent.Future
 
 /**
  * Test controller.
- *
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 class Application extends Controller {
 
@@ -19,7 +16,7 @@ class Application extends Controller {
     <?xml version="1.0"?>
     <node>
       <subnode>
-		Some text
+        Some text
       </subnode>
     </node>
     """

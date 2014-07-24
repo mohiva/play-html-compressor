@@ -17,7 +17,6 @@ import com.googlecode.htmlcompressor.compressor.HtmlCompressor
  * Implementation of the HTML compressor filter which can be used in Java.
  *
  * @param builder A builder instance which provides a configured HTML compressor instance.
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 class HTMLCompressorFilter(val builder: HTMLCompressorBuilder) extends ScalaHTMLCompressorFilter(builder.build) {
 

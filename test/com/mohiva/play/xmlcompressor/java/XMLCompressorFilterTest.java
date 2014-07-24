@@ -15,7 +15,6 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor;
 import org.junit.Test;
 
 import play.GlobalSettings;
-import play.Play;
 import play.api.mvc.EssentialFilter;
 import play.mvc.*;
 import static play.test.Helpers.*;
@@ -23,8 +22,6 @@ import static org.fest.assertions.Assertions.*;
 
 /**
  * Test case for the [[com.mohiva.play.xmlcompressor.java.XMLCompressorFilter]] class.
- *
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 public class XMLCompressorFilterTest {
 
@@ -192,7 +189,7 @@ public class XMLCompressorFilterTest {
         public XmlCompressor build() {
             XmlCompressor compressor = new XmlCompressor();
 
-        	compressor.setRemoveComments(false);
+            compressor.setRemoveComments(false);
             return compressor;
         }
     }

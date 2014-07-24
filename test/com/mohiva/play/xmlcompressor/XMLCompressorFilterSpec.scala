@@ -15,14 +15,11 @@ import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.test.FakeApplication
-import play.api.{ GlobalSettings, Play }
-import play.api.Play.current
+import play.api.GlobalSettings
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
 
 /**
  * Test case for the [[com.mohiva.play.xmlcompressor.XMLCompressorFilter]] class.
- *
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 class XMLCompressorFilterSpec extends Specification {
 
