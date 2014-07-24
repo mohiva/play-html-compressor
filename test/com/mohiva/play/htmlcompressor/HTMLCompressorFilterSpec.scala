@@ -21,8 +21,6 @@ import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 
 /**
  * Test case for the [[com.mohiva.play.htmlcompressor.HTMLCompressorFilter]] class.
- *
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 class HTMLCompressorFilterSpec extends Specification {
 

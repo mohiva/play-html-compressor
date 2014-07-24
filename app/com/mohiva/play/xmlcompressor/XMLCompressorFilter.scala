@@ -12,25 +12,17 @@ package com.mohiva.play.xmlcompressor
 
 import play.twirl.api.Xml
 import play.api.mvc._
-import play.api.Play
-import play.api.Play.current
-import play.api.http.{ MimeTypes, HeaderNames }
-import play.api.libs.iteratee.{ Enumerator, Iteratee }
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import play.api.http.HeaderNames
+import play.api.libs.iteratee.Enumerator
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
-import com.mohiva.play.compressor.AbstractCompressorFilter
+import com.mohiva.play.compressor.CompressorFilter
 
 /**
  * Uses Google's XML Processor to compress the XML code of a response.
  *
  * @param f Function which returns the configured XML compressor.
- *
- * @see http://jazzy.id.au/default/2013/02/16/understanding_the_play_filter_api.html
- * @see http://stackoverflow.com/questions/14154671/is-it-possible-to-prettify-scala-templates-using-play-framework-2
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
-class XMLCompressorFilter(f: => XmlCompressor) extends AbstractCompressorFilter[XmlCompressor, Xml](f) {
+class XMLCompressorFilter(f: => XmlCompressor) extends CompressorFilter[XmlCompressor](f) {
 
   /**
    * Check if the given result is a XML result.

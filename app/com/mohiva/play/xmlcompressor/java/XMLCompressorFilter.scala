@@ -17,7 +17,6 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor
  * Implementation of the XML compressor filter which can be used in Java.
  *
  * @param builder A builder instance which provides a configured XML compressor instance.
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 class XMLCompressorFilter(val builder: XMLCompressorBuilder) extends ScalaXMLCompressorFilter(builder.build) {
 

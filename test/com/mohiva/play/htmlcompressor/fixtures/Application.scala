@@ -6,8 +6,6 @@ import scala.concurrent.Future
 
 /**
  * Test controller.
- *
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 class Application extends Controller {
 

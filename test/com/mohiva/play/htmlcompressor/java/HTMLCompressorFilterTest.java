@@ -23,8 +23,6 @@ import static org.fest.assertions.Assertions.*;
 
 /**
  * Test case for the [[com.mohiva.play.htmlcompressor.java.HTMLCompressorFilter]] class.
- *
- * @author Christian Kaps `christian.kaps@mohiva.com`
  */
 public class HTMLCompressorFilterTest {
 

@@ -8,9 +8,15 @@ import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.googlecode.htmlcompressor.compressor.Compressor
-import scala.reflect.ClassTag
 
-abstract class AbstractCompressorFilter[C <: Compressor, T <: Content : ClassTag](f: => C) extends Filter {
+/**
+ * Base implementation of a filter which makes it possible to compress either HTML or XML with the
+ * help of Google's HTML Processor.
+ *
+ * @see http://jazzy.id.au/default/2013/02/16/understanding_the_play_filter_api.html
+ * @see http://stackoverflow.com/questions/14154671/is-it-possible-to-prettify-scala-templates-using-play-framework-2
+ */
+abstract class CompressorFilter[C <: Compressor](f: => C) extends Filter {
 
   /**
    * The charset used by Play.
@@ -33,6 +39,14 @@ abstract class AbstractCompressorFilter[C <: Compressor, T <: Content : ClassTag
   }
 
   /**
+   * Check if the given result is a compressible result.
+   *
+   * @param result The result to check.
+   * @return True if the result is a compressible result, false otherwise.
+   */
+  protected def isCompressible(result: Result): Boolean
+
+  /**
    * Compress the result.
    *
    * @param result The result to compress.
@@ -47,14 +61,6 @@ abstract class AbstractCompressorFilter[C <: Compressor, T <: Content : ClassTag
   } else result
 
   /**
-   * Check if the given result is a compressible result.
-   *
-   * @param result The result to check.
-   * @return True if the result is a compressible result, false otherwise.
-   */
-  protected def isCompressible(result: Result): Boolean
-
-  /**
    * Converts the body of a result as string.
    *
    * @return The body of a result as string.
@@ -62,7 +68,7 @@ abstract class AbstractCompressorFilter[C <: Compressor, T <: Content : ClassTag
   private def bodyAsString[A] = Iteratee.fold[A, String]("") { (str, body) =>
     body match {
       case string: String => str + string
-      case template: T => str + template.body
+      case template: Content => str + template.body
       case bytes: Array[Byte] => str + new String(bytes, charset)
       case _ => throw new Exception("Unexpected body: " + body)
     }
