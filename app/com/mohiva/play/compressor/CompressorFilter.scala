@@ -4,6 +4,7 @@ import play.twirl.api.Content
 import play.api.mvc._
 import play.api.Play
 import play.api.Play.current
+import play.api.http.HeaderNames._
 import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,7 +36,7 @@ abstract class CompressorFilter[C <: Compressor](f: => C) extends Filter {
    * @return The filtered action.
    */
   def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader) = {
-    next(rh).map(result => compressResult(result))
+    next(rh).flatMap(result => compressResult(result))
   }
 
   /**
@@ -52,13 +53,19 @@ abstract class CompressorFilter[C <: Compressor](f: => C) extends Filter {
    * @param result The result to compress.
    * @return The compressed result.
    */
-  private def compressResult(result: Result) = if (isCompressible(result)) {
-    result.copy(body = Enumerator.flatten(
-      Iteratee.flatten(result.body.apply(bodyAsString)).run.map { str =>
-        Enumerator(compressor.compress(str.trim).getBytes(charset))
-      }
-    ))
-  } else result
+  private def compressResult(result: Result): Future[Result] = if (isCompressible(result)) {
+    Iteratee.flatten(result.body.apply(bodyAsString)).run.map { str =>
+      val compressed = compressor.compress(str.trim).getBytes(charset)
+      val length = compressed.length
+      length -> Enumerator(compressed)
+    }.map {
+      case (length, content) =>
+        result.copy(
+          header = result.header.copy(headers = result.header.headers ++ Map(CONTENT_LENGTH -> length.toString)),
+          body = Enumerator.flatten(Future.successful(content))
+        )
+    }
+  } else Future.successful(result)
 
   /**
    * Converts the body of a result as string.

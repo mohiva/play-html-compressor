@@ -12,11 +12,17 @@ package com.mohiva.play.xmlcompressor.java;
 
 import com.googlecode.htmlcompressor.compressor.XmlCompressor;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import play.GlobalSettings;
+import play.Play;
 import play.api.mvc.EssentialFilter;
 import play.mvc.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 import static play.test.Helpers.*;
 import static org.fest.assertions.Assertions.*;
 
@@ -53,6 +59,30 @@ public class XMLCompressorFilterTest {
                 assertThat(status(result)).isEqualTo(OK);
                 assertThat(contentType(result)).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
+            }
+        });
+    }
+
+    /**
+     * Test if the default filter compress a static XML asset.
+     */
+    @Test
+    public void defaultFilterCompressStaticAssets() {
+        running(fakeApplication(new DefaultCompressorGlobal()), new Runnable() {
+            public void run() {
+                InputStream is = Play.application().resourceAsStream("static.xml");
+                String file = "";
+                try {
+                    file = IOUtils.toString(is, "UTF-8");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Result result = route(fakeRequest(GET, "/static"));
+
+                assertThat(status(result)).isEqualTo(OK);
+                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
+                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
             }
         });
     }
@@ -122,6 +152,30 @@ public class XMLCompressorFilterTest {
     }
 
     /**
+     * Test if the custom filter compress a static XML asset.
+     */
+    @Test
+    public void customFilterCompressStaticAssets() {
+        running(fakeApplication(new CustomCompressorGlobal()), new Runnable() {
+            public void run() {
+                InputStream is = Play.application().resourceAsStream("static.xml");
+                String file = "";
+                try {
+                    file = IOUtils.toString(is, "UTF-8");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Result result = route(fakeRequest(GET, "/static"));
+
+                assertThat(status(result)).isEqualTo(OK);
+                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
+                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+            }
+        });
+    }
+
+    /**
      * Defines the routes for the test.
      */
     public class RouteSettings extends GlobalSettings {
@@ -135,10 +189,12 @@ public class XMLCompressorFilterTest {
         public play.api.mvc.Handler onRouteRequest(Http.RequestHeader request) {
             if (request.method().equals("GET") && request.path().equals("/action")) {
                 return new com.mohiva.play.xmlcompressor.fixtures.Application().action();
-            } if (request.method().equals("GET") && request.path().equals("/asyncAction")) {
+            } else if (request.method().equals("GET") && request.path().equals("/asyncAction")) {
                 return new com.mohiva.play.xmlcompressor.fixtures.Application().asyncAction();
-            } if (request.method().equals("GET") && request.path().equals("/nonXML")) {
+            } else if (request.method().equals("GET") && request.path().equals("/nonXML")) {
                 return new com.mohiva.play.xmlcompressor.fixtures.Application().nonXML();
+            } else if (request.method().equals("GET") && request.path().equals("/static")) {
+                return new com.mohiva.play.xmlcompressor.fixtures.Application().staticAsset();
             } else {
                 return null;
             }

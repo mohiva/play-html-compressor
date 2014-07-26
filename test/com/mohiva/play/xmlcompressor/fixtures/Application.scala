@@ -2,11 +2,12 @@ package com.mohiva.play.xmlcompressor.fixtures
 
 import play.api.mvc._
 import scala.concurrent.Future
+import controllers.AssetsBuilder
 
 /**
  * Test controller.
  */
-class Application extends Controller {
+class Application extends AssetsBuilder {
 
   /**
    * The template to compress.
@@ -41,4 +42,9 @@ class Application extends Controller {
   def nonXML = Action {
     Ok("  <html/>")
   }
+
+  /**
+   * Loads a static asset.
+   */
+  def staticAsset = at("/", "static.xml")
 }
