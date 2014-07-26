@@ -15,7 +15,7 @@ import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.test.FakeApplication
-import play.api.GlobalSettings
+import play.api.{ Play, GlobalSettings }
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
 
 /**
@@ -47,6 +47,16 @@ class XMLCompressorFilterSpec extends Specification {
       contentType(result) must beSome("text/plain")
       contentAsString(result) must startWith("  <html/>")
     }
+
+    "compress static XML assets" in new CustomCompressorGlobal {
+      val file = scala.io.Source.fromInputStream(Play.resourceAsStream("static.xml").get).mkString
+      val Some(result) = route(FakeRequest(GET, "/static"))
+
+      status(result) must equalTo(OK)
+      contentType(result) must beSome("application/xml")
+      contentAsString(result) must startWith("<?xml version=\"1.0\"?><node><subnode>")
+      header(CONTENT_LENGTH, result) must not beSome file.length.toString
+    }
   }
 
   "The custom filter" should {
@@ -73,6 +83,16 @@ class XMLCompressorFilterSpec extends Specification {
       contentType(result) must beSome("text/plain")
       contentAsString(result) must startWith("  <html/>")
     }
+
+    "compress static XML assets" in new CustomCompressorGlobal {
+      val file = scala.io.Source.fromInputStream(Play.resourceAsStream("static.xml").get).mkString
+      val Some(result) = route(FakeRequest(GET, "/static"))
+
+      status(result) must equalTo(OK)
+      contentType(result) must beSome("application/xml")
+      contentAsString(result) must startWith("<?xml version=\"1.0\"?><node><subnode>")
+      header(CONTENT_LENGTH, result) must not beSome file.length.toString
+    }
   }
 
   /**
@@ -91,6 +111,7 @@ class XMLCompressorFilterSpec extends Specification {
         case ("GET", "/action") => Some(new com.mohiva.play.xmlcompressor.fixtures.Application().action)
         case ("GET", "/asyncAction") => Some(new com.mohiva.play.xmlcompressor.fixtures.Application().asyncAction)
         case ("GET", "/nonXML") => Some(new com.mohiva.play.xmlcompressor.fixtures.Application().nonXML)
+        case ("GET", "/static") => Some(new com.mohiva.play.xmlcompressor.fixtures.Application().staticAsset)
         case _ => None
       }
     }

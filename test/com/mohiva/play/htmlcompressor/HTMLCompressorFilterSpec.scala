@@ -48,6 +48,16 @@ class HTMLCompressorFilterSpec extends Specification {
       contentType(result) must beSome("text/plain")
       contentAsString(result) must startWith("  <html/>")
     }
+
+    "compress static assets" in new DefaultCompressorGlobal {
+      val file = scala.io.Source.fromInputStream(Play.resourceAsStream("static.html").get).mkString
+      val Some(result) = route(FakeRequest(GET, "/static"))
+
+      status(result) must equalTo(OK)
+      contentType(result) must beSome("text/html")
+      contentAsString(result) must startWith("<!DOCTYPE html><html><head>")
+      header(CONTENT_LENGTH, result) must not beSome file.length.toString
+    }
   }
 
   "The custom filter" should {
@@ -74,6 +84,16 @@ class HTMLCompressorFilterSpec extends Specification {
       contentType(result) must beSome("text/plain")
       contentAsString(result) must startWith("  <html/>")
     }
+
+    "compress static assets" in new CustomCompressorGlobal {
+      val file = scala.io.Source.fromInputStream(Play.resourceAsStream("static.html").get).mkString
+      val Some(result) = route(FakeRequest(GET, "/static"))
+
+      status(result) must equalTo(OK)
+      contentType(result) must beSome("text/html")
+      contentAsString(result) must startWith("<!DOCTYPE html><html><head>")
+      header(CONTENT_LENGTH, result) must not beSome file.length.toString
+    }
   }
 
   /**
@@ -92,6 +112,7 @@ class HTMLCompressorFilterSpec extends Specification {
         case ("GET", "/action") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().action)
         case ("GET", "/asyncAction") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().asyncAction)
         case ("GET", "/nonHTML") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().nonHTML)
+        case ("GET", "/static") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().staticAsset)
         case _ => None
       }
     }

@@ -11,12 +11,16 @@
 package com.mohiva.play.htmlcompressor.java;
 
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import play.GlobalSettings;
 import play.Play;
 import play.api.mvc.EssentialFilter;
 
 import play.mvc.*;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import static play.test.Helpers.*;
 import static org.fest.assertions.Assertions.*;
@@ -75,6 +79,30 @@ public class HTMLCompressorFilterTest {
     }
 
     /**
+     * Test if the default filter compress a static HTML asset.
+     */
+    @Test
+    public void defaultFilterCompressStaticAssets() {
+        running(fakeApplication(new DefaultCompressorGlobal()), new Runnable() {
+            public void run() {
+                InputStream is = Play.application().resourceAsStream("static.html");
+                String file = "";
+                try {
+                    file = IOUtils.toString(is, "UTF-8");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Result result = route(fakeRequest(GET, "/static"));
+
+                assertThat(status(result)).isEqualTo(OK);
+                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
+                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+            }
+        });
+    }
+
+    /**
      * Test if the custom filter compress an HTML page.
      */
     @Test
@@ -123,6 +151,30 @@ public class HTMLCompressorFilterTest {
     }
 
     /**
+     * Test if the custom filter compress a static HTML asset.
+     */
+    @Test
+    public void customFilterCompressStaticAssets() {
+        running(fakeApplication(new CustomCompressorGlobal()), new Runnable() {
+            public void run() {
+                InputStream is = Play.application().resourceAsStream("static.html");
+                String file = "";
+                try {
+                    file = IOUtils.toString(is, "UTF-8");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Result result = route(fakeRequest(GET, "/static"));
+
+                assertThat(status(result)).isEqualTo(OK);
+                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
+                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+            }
+        });
+    }
+
+    /**
      * Defines the routes for the test.
      */
     public class RouteSettings extends GlobalSettings {
@@ -136,10 +188,12 @@ public class HTMLCompressorFilterTest {
         public play.api.mvc.Handler onRouteRequest(Http.RequestHeader request) {
             if (request.method().equals("GET") && request.path().equals("/action")) {
                 return new com.mohiva.play.htmlcompressor.fixtures.Application().action();
-            } if (request.method().equals("GET") && request.path().equals("/asyncAction")) {
+            } else if (request.method().equals("GET") && request.path().equals("/asyncAction")) {
                 return new com.mohiva.play.htmlcompressor.fixtures.Application().asyncAction();
-            } if (request.method().equals("GET") && request.path().equals("/nonHTML")) {
+            } else if (request.method().equals("GET") && request.path().equals("/nonHTML")) {
                 return new com.mohiva.play.htmlcompressor.fixtures.Application().nonHTML();
+            } else if (request.method().equals("GET") && request.path().equals("/static")) {
+                return new com.mohiva.play.htmlcompressor.fixtures.Application().staticAsset();
             } else {
                 return null;
             }
