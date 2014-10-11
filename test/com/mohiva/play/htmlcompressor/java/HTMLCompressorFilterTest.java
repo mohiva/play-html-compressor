@@ -41,7 +41,7 @@ public class HTMLCompressorFilterTest {
 
                 assertThat(status(result)).isEqualTo(OK);
                 assertThat(contentType(result)).isEqualTo("text/html");
-                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
+                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
             }
         });
     }
@@ -57,7 +57,7 @@ public class HTMLCompressorFilterTest {
 
                 assertThat(status(result)).isEqualTo(OK);
                 assertThat(contentType(result)).isEqualTo("text/html");
-                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
+                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
             }
         });
     }
@@ -96,7 +96,7 @@ public class HTMLCompressorFilterTest {
 
                 assertThat(status(result)).isEqualTo(OK);
                 assertThat(contentType(result)).isEqualTo("text/html");
-                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
+                assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
                 assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
             }
         });

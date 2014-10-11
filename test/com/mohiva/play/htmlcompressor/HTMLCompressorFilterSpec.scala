@@ -30,7 +30,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
       status(result) must equalTo(OK)
       contentType(result) must beSome("text/html")
-      contentAsString(result) must startWith("<!DOCTYPE html><html><head>")
+      contentAsString(result) must startWith("<!DOCTYPE html> <html> <head>")
     }
 
     "compress an async HTML page" in new DefaultCompressorGlobal {
@@ -38,7 +38,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
       status(result) must equalTo(OK)
       contentType(result) must beSome("text/html")
-      contentAsString(result) must startWith("<!DOCTYPE html><html><head>")
+      contentAsString(result) must startWith("<!DOCTYPE html> <html> <head>")
     }
 
     "not compress a non HTML result" in new DefaultCompressorGlobal {
@@ -55,7 +55,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
       status(result) must equalTo(OK)
       contentType(result) must beSome("text/html")
-      contentAsString(result) must startWith("<!DOCTYPE html><html><head>")
+      contentAsString(result) must startWith("<!DOCTYPE html> <html> <head>")
       header(CONTENT_LENGTH, result) must not beSome file.length.toString
     }
   }
