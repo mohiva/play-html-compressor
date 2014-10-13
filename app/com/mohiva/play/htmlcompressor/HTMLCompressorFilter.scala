@@ -54,7 +54,7 @@ object HTMLCompressorFilter {
     }
 
     compressor.setRemoveComments(true)
-    compressor.setRemoveIntertagSpaces(true)
+    compressor.setRemoveIntertagSpaces(false)
     compressor.setRemoveHttpProtocol(true)
     compressor.setRemoveHttpsProtocol(true)
     compressor
