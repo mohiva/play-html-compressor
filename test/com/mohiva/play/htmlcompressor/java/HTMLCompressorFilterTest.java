@@ -11,6 +11,7 @@
 package com.mohiva.play.htmlcompressor.java;
 
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
+import com.mohiva.play.htmlcompressor.fixtures.Application;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import play.GlobalSettings;
@@ -102,6 +103,24 @@ public class HTMLCompressorFilterTest {
         });
     }
 
+
+    /**
+     * Test if result is not compressed when transfer encoding is set to chunked
+     */
+    @Test
+    public void defaultFilterNotCompressChunkedResult() {
+        running(fakeApplication(new DefaultCompressorGlobal()), new Runnable() {
+            @Override
+            public void run() {
+                Result result = route(fakeRequest(GET, "/chunked"));
+
+                assertThat(status(result)).isEqualTo(OK);
+                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(header(CONTENT_LENGTH, result)).isNull();
+            }
+        });
+    }
+
     /**
      * Test if the custom filter compress an HTML page.
      */
@@ -186,14 +205,18 @@ public class HTMLCompressorFilterTest {
          * @return An action to handle this request.
          */
         public play.api.mvc.Handler onRouteRequest(Http.RequestHeader request) {
-            if (request.method().equals("GET") && request.path().equals("/action")) {
-                return new com.mohiva.play.htmlcompressor.fixtures.Application().action();
-            } else if (request.method().equals("GET") && request.path().equals("/asyncAction")) {
-                return new com.mohiva.play.htmlcompressor.fixtures.Application().asyncAction();
-            } else if (request.method().equals("GET") && request.path().equals("/nonHTML")) {
-                return new com.mohiva.play.htmlcompressor.fixtures.Application().nonHTML();
-            } else if (request.method().equals("GET") && request.path().equals("/static")) {
-                return new com.mohiva.play.htmlcompressor.fixtures.Application().staticAsset();
+            if (!request.method().equals("GET")) return null;
+            final String path = request.path();
+            if (path.equals("/action")) {
+                return new Application().action();
+            } else if (path.equals("/asyncAction")) {
+                return new Application().asyncAction();
+            } else if (path.equals("/nonHTML")) {
+                return new Application().nonHTML();
+            } else if (path.equals("/static")) {
+                return new Application().staticAsset();
+            } else if (path.equals("/chunked")) {
+                return new Application().chunked();
             } else {
                 return null;
             }

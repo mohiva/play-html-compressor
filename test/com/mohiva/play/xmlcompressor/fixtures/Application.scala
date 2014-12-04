@@ -1,8 +1,11 @@
 package com.mohiva.play.xmlcompressor.fixtures
 
+import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
+import play.twirl.api.Xml
 import scala.concurrent.Future
 import controllers.AssetsBuilder
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Test controller.
@@ -47,4 +50,12 @@ class Application extends AssetsBuilder {
    * Loads a static asset.
    */
   def staticAsset = at("/", "static.xml")
+
+  /**
+   * Action with chunked transfer encoding
+   */
+  def chunked = Action {
+    val parts = List(" <node> ", " <subnode> ", " text", " </subnode> ", " </node> ").map(Xml.apply)
+    Ok.chunked(Enumerator.enumerate(parts))
+  }
 }

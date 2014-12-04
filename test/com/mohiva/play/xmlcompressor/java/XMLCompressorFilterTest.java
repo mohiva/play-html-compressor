@@ -12,6 +12,7 @@ package com.mohiva.play.xmlcompressor.java;
 
 import com.googlecode.htmlcompressor.compressor.XmlCompressor;
 
+import com.mohiva.play.xmlcompressor.fixtures.Application;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -104,6 +105,22 @@ public class XMLCompressorFilterTest {
     }
 
     /**
+     * Test if the default filter does not compress chunked XML result.
+     */
+    @Test
+    public void defaultFilterNotCompressChunkedXMLPage() {
+        running(fakeApplication(new DefaultCompressorGlobal()), new Runnable() {
+            public void run() {
+                Result result = route(fakeRequest(GET, "/chunked"));
+
+                assertThat(status(result)).isEqualTo(OK);
+                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(header(CONTENT_LENGTH, result)).isNull();
+            }
+        });
+    }
+
+    /**
      * Test if the custom filter compress an XML page.
      */
     @Test
@@ -187,14 +204,18 @@ public class XMLCompressorFilterTest {
          * @return An action to handle this request.
          */
         public play.api.mvc.Handler onRouteRequest(Http.RequestHeader request) {
-            if (request.method().equals("GET") && request.path().equals("/action")) {
-                return new com.mohiva.play.xmlcompressor.fixtures.Application().action();
-            } else if (request.method().equals("GET") && request.path().equals("/asyncAction")) {
-                return new com.mohiva.play.xmlcompressor.fixtures.Application().asyncAction();
-            } else if (request.method().equals("GET") && request.path().equals("/nonXML")) {
-                return new com.mohiva.play.xmlcompressor.fixtures.Application().nonXML();
-            } else if (request.method().equals("GET") && request.path().equals("/static")) {
-                return new com.mohiva.play.xmlcompressor.fixtures.Application().staticAsset();
+            final boolean getRequest = request.method().equals("GET");
+            if (!getRequest) return null;
+            if (request.path().equals("/action")) {
+                return new Application().action();
+            } else if (request.path().equals("/asyncAction")) {
+                return new Application().asyncAction();
+            } else if (request.path().equals("/nonXML")) {
+                return new Application().nonXML();
+            } else if (request.path().equals("/static")) {
+                return new Application().staticAsset();
+            } else if (request.path().equals("/chunked")) {
+                return new Application().chunked();
             } else {
                 return null;
             }
