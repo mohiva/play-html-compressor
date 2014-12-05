@@ -10,6 +10,7 @@
  */
 package com.mohiva.play.htmlcompressor
 
+import com.mohiva.play.htmlcompressor.fixtures.Application
 import org.specs2.mutable._
 import play.api.mvc._
 import play.api.test._
@@ -57,6 +58,13 @@ class HTMLCompressorFilterSpec extends Specification {
       contentType(result) must beSome("text/html")
       contentAsString(result) must startWith("<!DOCTYPE html> <html> <head>")
       header(CONTENT_LENGTH, result) must not beSome file.length.toString
+    }
+
+    "not compress result with chunked HTML result" in new DefaultCompressorGlobal {
+      val Some(result) = route(FakeRequest(GET, "/chunked"))
+      status(result) must beEqualTo(OK)
+      contentType(result) must beSome("text/html")
+      header(CONTENT_LENGTH, result) must beNone
     }
   }
 
@@ -108,11 +116,13 @@ class HTMLCompressorFilterSpec extends Specification {
      * @return An action to handle this request.
      */
     override def onRouteRequest(request: RequestHeader): Option[Handler] = {
+      lazy val application = new Application()
       (request.method, request.path) match {
-        case ("GET", "/action") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().action)
-        case ("GET", "/asyncAction") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().asyncAction)
-        case ("GET", "/nonHTML") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().nonHTML)
-        case ("GET", "/static") => Some(new com.mohiva.play.htmlcompressor.fixtures.Application().staticAsset)
+        case ("GET", "/action") => Some(application.action)
+        case ("GET", "/asyncAction") => Some(application.asyncAction)
+        case ("GET", "/nonHTML") => Some(application.nonHTML)
+        case ("GET", "/static") => Some(application.staticAsset)
+        case ("GET", "/chunked") => Some(application.chunked)
         case _ => None
       }
     }

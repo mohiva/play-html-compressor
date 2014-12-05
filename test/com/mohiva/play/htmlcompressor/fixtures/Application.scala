@@ -1,9 +1,11 @@
 package com.mohiva.play.htmlcompressor.fixtures
 
+import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
 import play.twirl.api.Html
 import scala.concurrent.Future
 import controllers.AssetsBuilder
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Test controller.
@@ -52,4 +54,12 @@ class Application extends AssetsBuilder {
    * Loads a static asset.
    */
   def staticAsset = at("/", "static.html")
+
+  /**
+   * Action with chunked transfer encoding
+   */
+  def chunked = Action {
+    val parts = List(" <html> ", " <body> ", " <h1> Title </h1>", " </body> ", " </html> ").map(Html.apply)
+    Ok.chunked(Enumerator.enumerate(parts))
+  }
 }

@@ -32,10 +32,10 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends CompressorFilter[HtmlCo
    * @param result The result to check.
    * @return True if the result is a HTML result, false otherwise.
    */
-  protected def isCompressible(result: Result): Boolean = {
-    result.header.headers.contains(HeaderNames.CONTENT_TYPE) &&
-      result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains(MimeTypes.HTML) &&
-      manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)
+  override protected def isCompressible(result: Result): Boolean = {
+    lazy val contentTypeHtml = result.header.headers.get(HeaderNames.CONTENT_TYPE).exists(_.contains(MimeTypes.HTML))
+    lazy val htmlEnumerator = manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)
+    super.isCompressible(result) && contentTypeHtml && htmlEnumerator
   }
 }
 

@@ -30,11 +30,11 @@ class XMLCompressorFilter(f: => XmlCompressor) extends CompressorFilter[XmlCompr
    * @param result The result to check.
    * @return True if the result is a XML result, false otherwise.
    */
-  protected def isCompressible(result: Result) = {
-    result.header.headers.contains(HeaderNames.CONTENT_TYPE) &&
-      // We cannot simply look for MimeTypes.XML because of things like "application/atom+xml".
-      result.header.headers.apply(HeaderNames.CONTENT_TYPE).contains("xml") &&
-      manifest[Enumerator[Xml]].runtimeClass.isInstance(result.body)
+  override protected def isCompressible(result: Result) = {
+    // We cannot simply look for MimeTypes.XML because of things like "application/atom+xml".
+    lazy val contentTypeXml = result.header.headers.get(HeaderNames.CONTENT_TYPE).exists(_.contains("xml"))
+    lazy val xmlEnumerator = manifest[Enumerator[Xml]].runtimeClass.isInstance(result.body)
+    super.isCompressible(result) && contentTypeXml && xmlEnumerator
   }
 }
 
