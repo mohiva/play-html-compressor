@@ -47,7 +47,7 @@ abstract class CompressorFilter[C <: Compressor](f: => C) extends Filter {
    * @return True if the result is a compressible result, false otherwise.
    */
   protected def isCompressible(result: Result): Boolean = {
-    !result.header.headers.get(TRANSFER_ENCODING).contains(HttpProtocol.CHUNKED)
+    !result.header.headers.get(TRANSFER_ENCODING).exists(_ == HttpProtocol.CHUNKED)
   }
 
   /**
