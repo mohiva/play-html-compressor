@@ -124,6 +124,7 @@ object HTMLCompressorFilter {
 import play.Play;
 import play.GlobalSettings;
 import play.api.mvc.EssentialFilter;
+import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.htmlcompressor.java.HTMLCompressorFilter;
 import com.mohiva.play.htmlcompressor.java.HTMLCompressorBuilder;
 
