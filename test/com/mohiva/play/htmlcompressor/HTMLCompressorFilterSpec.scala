@@ -17,7 +17,6 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.api.test.FakeApplication
 import play.api.{ GlobalSettings, Play }
-import play.api.Play.current
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 
 /**
@@ -152,10 +151,6 @@ class HTMLCompressorFilterSpec extends Specification {
      */
     def apply(): HTMLCompressorFilter = new HTMLCompressorFilter({
       val compressor = new HtmlCompressor()
-      if (Play.isDev) {
-        compressor.setPreserveLineBreaks(true)
-      }
-
       compressor.setRemoveComments(true)
       compressor.setRemoveIntertagSpaces(true)
       compressor.setRemoveHttpProtocol(true)

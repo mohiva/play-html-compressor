@@ -23,8 +23,8 @@ import play.mvc.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static play.test.Helpers.*;
 import static org.fest.assertions.Assertions.*;
+import static play.test.Helpers.*;
 
 /**
  * Test case for the [[com.mohiva.play.htmlcompressor.java.HTMLCompressorFilter]] class.
@@ -40,8 +40,8 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/action"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
                 assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
             }
         });
@@ -56,8 +56,8 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/asyncAction"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
                 assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
             }
         });
@@ -72,8 +72,8 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/nonHTML"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/plain");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/plain");
                 assertThat(contentAsString(result)).startsWith("  <html/>");
             }
         });
@@ -95,10 +95,10 @@ public class HTMLCompressorFilterTest {
                 }
                 Result result = route(fakeRequest(GET, "/static"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
                 assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
-                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+                assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
             }
         });
     }
@@ -114,9 +114,9 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/chunked"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
-                assertThat(header(CONTENT_LENGTH, result)).isNull();
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
+                assertThat(result.header(CONTENT_LENGTH)).isNull();
             }
         });
     }
@@ -130,8 +130,8 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/action"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
                 assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
             }
         });
@@ -146,8 +146,8 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/asyncAction"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
                 assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
             }
         });
@@ -162,8 +162,8 @@ public class HTMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/nonHTML"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/plain");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/plain");
                 assertThat(contentAsString(result)).startsWith("  <html/>");
             }
         });
@@ -185,10 +185,10 @@ public class HTMLCompressorFilterTest {
                 }
                 Result result = route(fakeRequest(GET, "/static"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/html");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/html");
                 assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
-                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+                assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
             }
         });
     }
@@ -197,7 +197,6 @@ public class HTMLCompressorFilterTest {
      * Defines the routes for the test.
      */
     public class RouteSettings extends GlobalSettings {
-
         /**
          * Specify custom routes for this test.
          *
@@ -207,18 +206,19 @@ public class HTMLCompressorFilterTest {
         public play.api.mvc.Handler onRouteRequest(Http.RequestHeader request) {
             if (!request.method().equals("GET")) return null;
             final String path = request.path();
-            if (path.equals("/action")) {
-                return new Application().action();
-            } else if (path.equals("/asyncAction")) {
-                return new Application().asyncAction();
-            } else if (path.equals("/nonHTML")) {
-                return new Application().nonHTML();
-            } else if (path.equals("/static")) {
-                return new Application().staticAsset();
-            } else if (path.equals("/chunked")) {
-                return new Application().chunked();
-            } else {
-                return null;
+            switch (path) {
+                case "/action":
+                    return new Application().action();
+                case "/asyncAction":
+                    return new Application().asyncAction();
+                case "/nonHTML":
+                    return new Application().nonHTML();
+                case "/static":
+                    return new Application().staticAsset();
+                case "/chunked":
+                    return new Application().chunked();
+                default:
+                    return null;
             }
         }
     }
@@ -255,8 +255,15 @@ public class HTMLCompressorFilterTest {
      * Custom implementation of the HTML compressor filter.
      */
     public static class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
+        private final static CustomHTMLCompressorBuilder customHTMLCompressorBuilder = new CustomHTMLCompressorBuilder();
+
         public CustomHTMLCompressorFilter() {
-            super(new CustomHTMLCompressorBuilder());
+            super(customHTMLCompressorBuilder);
+        }
+
+        @Override
+        public HTMLCompressorBuilder builder() {
+            return customHTMLCompressorBuilder;
         }
     }
 

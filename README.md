@@ -21,6 +21,7 @@ libraryDependencies ++= Seq(
 
 ### History
 
+* For Play Framework 2.4 use version 0.4.1-SNAPSHOT
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
 * For Play Framework 2.1 use version 0.1-SNAPSHOT
