@@ -24,8 +24,8 @@ import play.mvc.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static play.test.Helpers.*;
 import static org.fest.assertions.Assertions.*;
+import static play.test.Helpers.*;
 
 /**
  * Test case for the [[com.mohiva.play.xmlcompressor.java.XMLCompressorFilter]] class.
@@ -41,8 +41,8 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/action"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
             }
         });
@@ -57,8 +57,8 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/asyncAction"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
             }
         });
@@ -80,10 +80,10 @@ public class XMLCompressorFilterTest {
                 }
                 Result result = route(fakeRequest(GET, "/static"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
-                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+                assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
             }
         });
     }
@@ -97,8 +97,8 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/nonXML"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/plain");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/plain");
                 assertThat(contentAsString(result)).startsWith("  <html/>");
             }
         });
@@ -113,9 +113,9 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/chunked"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
-                assertThat(header(CONTENT_LENGTH, result)).isNull();
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
+                assertThat(result.header(CONTENT_LENGTH)).isNull();
             }
         });
     }
@@ -129,8 +129,8 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/action"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
             }
         });
@@ -145,8 +145,8 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/asyncAction"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
             }
         });
@@ -161,8 +161,8 @@ public class XMLCompressorFilterTest {
             public void run() {
                 Result result = route(fakeRequest(GET, "/nonXML"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("text/plain");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("text/plain");
                 assertThat(contentAsString(result)).startsWith("  <html/>");
             }
         });
@@ -184,10 +184,10 @@ public class XMLCompressorFilterTest {
                 }
                 Result result = route(fakeRequest(GET, "/static"));
 
-                assertThat(status(result)).isEqualTo(OK);
-                assertThat(contentType(result)).isEqualTo("application/xml");
+                assertThat(result.status()).isEqualTo(OK);
+                assertThat(result.contentType()).isEqualTo("application/xml");
                 assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
-                assertThat(header(CONTENT_LENGTH, result)).isNotEqualTo(String.valueOf(file.length()));
+                assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
             }
         });
     }
@@ -206,18 +206,20 @@ public class XMLCompressorFilterTest {
         public play.api.mvc.Handler onRouteRequest(Http.RequestHeader request) {
             final boolean getRequest = request.method().equals("GET");
             if (!getRequest) return null;
-            if (request.path().equals("/action")) {
-                return new Application().action();
-            } else if (request.path().equals("/asyncAction")) {
-                return new Application().asyncAction();
-            } else if (request.path().equals("/nonXML")) {
-                return new Application().nonXML();
-            } else if (request.path().equals("/static")) {
-                return new Application().staticAsset();
-            } else if (request.path().equals("/chunked")) {
-                return new Application().chunked();
-            } else {
-                return null;
+            String path = request.path();
+            switch (path) {
+                case "/action":
+                    return new Application().action();
+                case "/asyncAction":
+                    return new Application().asyncAction();
+                case "/nonXML":
+                    return new Application().nonXML();
+                case "/static":
+                    return new Application().staticAsset();
+                case "/chunked":
+                    return new Application().chunked();
+                default:
+                    return null;
             }
         }
     }
@@ -254,8 +256,15 @@ public class XMLCompressorFilterTest {
      * Custom implementation of the XML compressor filter.
      */
     public static class CustomXMLCompressorFilter extends XMLCompressorFilter {
+        private final static CustomXMLCompressorBuilder customXMLCompressorBuilder = new CustomXMLCompressorBuilder();
+
         public CustomXMLCompressorFilter() {
-            super(new CustomXMLCompressorBuilder());
+            super(customXMLCompressorBuilder);
+        }
+
+        @Override
+        public XMLCompressorBuilder builder() {
+            return customXMLCompressorBuilder;
         }
     }
 

@@ -1,5 +1,6 @@
 package com.mohiva.play.htmlcompressor.fixtures
 
+import play.api.http.DefaultHttpErrorHandler
 import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
 import play.twirl.api.Html
@@ -10,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Test controller.
  */
-class Application extends AssetsBuilder {
+class Application extends AssetsBuilder(DefaultHttpErrorHandler) {
 
   /**
    * The template to compress.

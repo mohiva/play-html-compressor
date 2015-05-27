@@ -1,5 +1,5 @@
-import play.PlayScala
 import com.typesafe.sbt.SbtScalariform._
+import play.sbt.PlayImport._
 import xerial.sbt.Sonatype._
 
 //*******************************
@@ -8,14 +8,19 @@ import xerial.sbt.Sonatype._
 
 name := "play-html-compressor"
 
-version := "0.4-SNAPSHOT"
+version := "0.4.1-SNAPSHOT"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
-  "rhino" % "js" % "1.7R2"
+  "rhino" % "js" % "1.7R2",
+  specs2 % Test,
+  "org.easytesting" % "fest-assert" % "1.4" % Test
 )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+// org.scalaz.stream#scalaz-stream_2.11 is not in not in maven central or any other repositories
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+
+lazy val root = (project in file(".")).enablePlugins(play.sbt.Play)
 
 //*******************************
 // Maven settings
