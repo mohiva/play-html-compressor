@@ -15,7 +15,7 @@ If you want to use the latest snapshot, add the following instead:
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.4-SNAPSHOT"
+  "com.mohiva" %% "play-html-compressor" % "0.4.1-SNAPSHOT"
 )
 ```
 

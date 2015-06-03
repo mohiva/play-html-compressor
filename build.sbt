@@ -13,8 +13,8 @@ version := "0.4.1-SNAPSHOT"
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
   "rhino" % "js" % "1.7R2",
-  specs2 % Test,
-  "org.easytesting" % "fest-assert" % "1.4" % Test
+  "org.easytesting" % "fest-assert" % "1.4" % Test,
+  specs2 % Test
 )
 
 // org.scalaz.stream#scalaz-stream_2.11 is not in not in maven central or any other repositories
@@ -56,21 +56,13 @@ pomIncludeRepository := { _ => false }
 
 pomExtra := pom
 
-credentials += Credentials(Path.userHome / ".sbt" / "sonatype.credentials")
-
-//*******************************
-// Test settings
-//*******************************
-
-parallelExecution in Test := false
-
 //*******************************
 // Compiler settings
 //*******************************
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.6"
 
-crossScalaVersions := Seq("2.10.4", "2.11.4")
+crossScalaVersions := Seq("2.10.5", "2.11.6")
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
