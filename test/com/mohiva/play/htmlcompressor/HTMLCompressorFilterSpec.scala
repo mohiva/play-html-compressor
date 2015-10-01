@@ -10,7 +10,11 @@
  */
 package com.mohiva.play.htmlcompressor
 
+import _root_.java.io.ByteArrayInputStream
+import _root_.java.util.zip.GZIPInputStream
+
 import com.mohiva.play.htmlcompressor.fixtures.Application
+import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
 import play.api.mvc._
 import play.api.test._
@@ -18,6 +22,7 @@ import play.api.test.Helpers._
 import play.api.test.FakeApplication
 import play.api.{ GlobalSettings, Play }
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
+import play.filters.gzip.GzipFilter
 
 /**
  * Test case for the [[com.mohiva.play.htmlcompressor.HTMLCompressorFilter]] class.
@@ -103,6 +108,33 @@ class HTMLCompressorFilterSpec extends Specification {
     }
   }
 
+  "The default filter with Gzip Filter" should {
+    "first compress then gzip result" in new DefaultWithGzipGlobal {
+      val Some(original) = route(FakeRequest(GET, "/action"))
+      val Some(gzipped) = route(FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip"))
+
+      status(gzipped) must beEqualTo(OK)
+      contentType(gzipped) must beSome("text/html")
+      header(CONTENT_ENCODING, gzipped) must beSome("gzip")
+      gunzip(contentAsBytes(gzipped)) must_== contentAsBytes(original)
+    }
+
+    "not compress already gzipped result" in new DefaultWithGzipGlobal {
+      // given static.html.gz == gzip(static.html)
+      // when /static.html is requested
+      // then Assets controller responds with static.html.gz
+      // we don't want to further pass this through HTML Compressor
+
+      val original = IOUtils.toByteArray(Play.resourceAsStream("static.html").get)
+      val Some(result) = route(FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
+
+      status(result) must beEqualTo(OK)
+      contentType(result) must beSome("text/html")
+      header(CONTENT_ENCODING, result) must beSome("gzip")
+      gunzip(contentAsBytes(result)) must_== original
+    }
+  }
+
   /**
    * Defines the routes for the test.
    */
@@ -122,6 +154,7 @@ class HTMLCompressorFilterSpec extends Specification {
         case ("GET", "/nonHTML") => Some(application.nonHTML)
         case ("GET", "/static") => Some(application.staticAsset)
         case ("GET", "/chunked") => Some(application.chunked)
+        case ("GET", "/gzipped") => Some(application.gzipped)
         case _ => None
       }
     }
@@ -157,5 +190,17 @@ class HTMLCompressorFilterSpec extends Specification {
       compressor.setRemoveHttpsProtocol(true)
       compressor
     })
+  }
+
+  /**
+   * A custom global object with default HTML compressor filter and Default Gzip Filter.
+   */
+  class DefaultWithGzipGlobal
+    extends WithApplication(FakeApplication(withGlobal = Some(new WithFilters(new GzipFilter(), HTMLCompressorFilter()) with RouteSettings)))
+
+  def gunzip(bs: Array[Byte]): Array[Byte] = {
+    val bis = new ByteArrayInputStream(bs)
+    val gzis = new GZIPInputStream(bis)
+    IOUtils.toByteArray(gzis)
   }
 }

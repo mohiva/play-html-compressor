@@ -14,7 +14,8 @@ libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
   "rhino" % "js" % "1.7R2",
   "org.easytesting" % "fest-assert" % "1.4" % Test,
-  specs2 % Test
+  specs2 % Test,
+  filters % Test
 )
 
 // org.scalaz.stream#scalaz-stream_2.11 is not in not in maven central or any other repositories

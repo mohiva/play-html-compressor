@@ -60,4 +60,6 @@ class Application extends AssetsBuilder(DefaultHttpErrorHandler) {
     val parts = List(" <node> ", " <subnode> ", " text", " </subnode> ", " </node> ").map(Xml.apply)
     Ok.chunked(Enumerator.enumerate(parts))
   }
+
+  def gzipped = staticAsset
 }

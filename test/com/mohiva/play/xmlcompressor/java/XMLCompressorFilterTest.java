@@ -19,10 +19,17 @@ import org.junit.Test;
 import play.GlobalSettings;
 import play.Play;
 import play.api.mvc.EssentialFilter;
+import play.api.mvc.RequestHeader;
+import play.api.mvc.ResponseHeader;
+import play.filters.gzip.Gzip;
+import play.filters.gzip.GzipFilter;
 import play.mvc.*;
+import scala.runtime.AbstractFunction2;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 import static org.fest.assertions.Assertions.*;
 import static play.test.Helpers.*;
@@ -193,6 +200,57 @@ public class XMLCompressorFilterTest {
     }
 
     /**
+     * Test that a result is first HTML compressed and then gzipped
+     */
+    @Test
+    public void defaultWithGzipFilterHtmlCompressesAndThenGzipsResult() {
+        running(fakeApplication(new DefaultWithGzipGlobal()), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Result original = route(fakeRequest(GET, "/action"));
+                    Result gzipped  = route(fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
+
+                    assertThat(gzipped.status()).isEqualTo(OK);
+                    assertThat(gzipped.contentType()).isEqualTo("application/xml");
+                    assertThat(gzipped.header(CONTENT_ENCODING)).isEqualTo("gzip");
+                    assertThat(gunzip(contentAsBytes(gzipped))).isEqualTo(contentAsBytes(original));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Test if result is not compressed if it's already gzipped
+     *
+     * given static.html.gz == gzip(static.html)
+     * when /static.html is requested
+     * then Assets controller responds with static.html.gz
+     * we don't want to further pass this through HTML Compressor
+     */
+    @Test
+    public void defaultWithGzipFilterNotCompressGzippedResult() {
+        running(fakeApplication(new DefaultWithGzipGlobal()), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    byte[] original = IOUtils.toByteArray(Play.application().resourceAsStream("static.xml"));
+                    Result result = route(fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
+
+                    assertThat(result.status()).isEqualTo(OK);
+                    assertThat(result.contentType()).isEqualTo("application/xml");
+                    assertThat(result.header(CONTENT_ENCODING)).isEqualTo("gzip");
+                    assertThat(gunzip(contentAsBytes(result))).isEqualTo(original);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    /**
      * Defines the routes for the test.
      */
     public class RouteSettings extends GlobalSettings {
@@ -218,6 +276,8 @@ public class XMLCompressorFilterTest {
                     return new Application().staticAsset();
                 case "/chunked":
                     return new Application().chunked();
+                case "/gzipped":
+                    return new Application().gzipped();
                 default:
                     return null;
             }
@@ -278,5 +338,41 @@ public class XMLCompressorFilterTest {
             compressor.setRemoveComments(false);
             return compressor;
         }
+    }
+
+
+    /**
+     * A custom global object with default HTML compressor filter and Default Gzip Filter.
+     */
+    public class DefaultWithGzipGlobal extends RouteSettings {
+        @SuppressWarnings("unchecked")
+        public <T extends EssentialFilter> Class<T>[] filters() {
+            return new Class[]{ JavaGzipFilter.class, XMLCompressorFilter.class };
+        }
+    }
+
+    /**
+     * Can't just pass GzipFilter.class since Play 2.4 expects the
+     * filters to be dependency injected. Instead, this class provides
+     * the no-arg constructor that GlobalSettings.filters() expects.
+     */
+    public static class JavaGzipFilter extends GzipFilter {
+        public JavaGzipFilter() {
+            super(Gzip.gzip(8192),
+                    102400,
+                    new AbstractFunction2<RequestHeader, ResponseHeader, Object>() {
+                        @Override
+                        public Object apply(RequestHeader req, ResponseHeader resp) {
+                            return true;
+                        }
+                    }
+            );
+        }
+    }
+
+    public byte[] gunzip(byte[] bs) throws IOException {
+        InputStream bis = new ByteArrayInputStream(bs);
+        InputStream gzis = new GZIPInputStream(bis);
+        return IOUtils.toByteArray(gzis);
     }
 }
