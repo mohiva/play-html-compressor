@@ -1,4 +1,4 @@
-# Google's HTML (and XML) Compressor for Play Framework 2[![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
+# Google's HTML (and XML) Compressor for Play Framework 2 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.mohiva/play-html-compressor_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.mohiva/play-html-compressor_2.11) [![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/mohiva/play-html-compressor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Installation
@@ -6,22 +6,13 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.3.1"
-)
-```
-
-If you want to use the latest snapshot, add the following instead:
-```scala
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-
-libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.4.1-SNAPSHOT"
+  "com.mohiva" %% "play-html-compressor" % "0.4.1"
 )
 ```
 
 ### History
 
-* For Play Framework 2.4 use version 0.4.1-SNAPSHOT
+* For Play Framework 2.4 use version 0.4.1
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
 * For Play Framework 2.1 use version 0.1-SNAPSHOT
