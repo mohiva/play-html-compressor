@@ -10,21 +10,21 @@
  */
 package com.mohiva.play.htmlcompressor
 
-import play.twirl.api.Html
-import play.api.mvc._
-import play.api.Play
-import play.api.Play.current
-import play.api.http.{ MimeTypes, HeaderNames }
-import play.api.libs.iteratee.Enumerator
+import javax.inject.Inject
+
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.compressor.CompressorFilter
+import play.api.http.{ HeaderNames, MimeTypes }
+import play.api.inject.Module
+import play.api.libs.iteratee.Enumerator
+import play.api.mvc._
+import play.api.{ Environment, Configuration, Mode }
+import play.twirl.api.Html
 
 /**
  * Uses Google's HTML Processor to compress the HTML code of a response.
- *
- * @param f Function which returns the configured HTML compressor.
  */
-class HTMLCompressorFilter(f: => HtmlCompressor) extends CompressorFilter[HtmlCompressor](f) {
+abstract class HTMLCompressorFilter extends CompressorFilter[HtmlCompressor] {
 
   /**
    * Check if the given result is a HTML result.
@@ -40,30 +40,49 @@ class HTMLCompressorFilter(f: => HtmlCompressor) extends CompressorFilter[HtmlCo
 }
 
 /**
- * Default implementation of the HTML compressor filter.
+ * The default implementation of the [[HTMLCompressorFilter]].
+ *
+ * @param configuration The Play configuration.
+ * @param environment The Play environment.
  */
-object HTMLCompressorFilter {
+class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment)
+    extends HTMLCompressorFilter {
 
   /**
-   * Gets the default Google HTML compressor instance.
+   * The compressor instance.
    */
-  lazy val default = {
-    val compressor = new HtmlCompressor()
-    if (Play.isDev) {
-      compressor.setPreserveLineBreaks(true)
+  override val compressor: HtmlCompressor = {
+    val c = new HtmlCompressor()
+    if (environment.mode == Mode.Dev) {
+      c.setPreserveLineBreaks(true)
     }
 
-    compressor.setRemoveComments(true)
-    compressor.setRemoveIntertagSpaces(false)
-    compressor.setRemoveHttpProtocol(true)
-    compressor.setRemoveHttpsProtocol(true)
-    compressor
+    c.setRemoveComments(true)
+    c.setRemoveIntertagSpaces(false)
+    c.setRemoveHttpProtocol(true)
+    c.setRemoveHttpsProtocol(true)
+    c
   }
+}
 
-  /**
-   * Creates the HTML compressor filter.
-   *
-   * @return The HTML compressor filter.
-   */
-  def apply(): HTMLCompressorFilter = new HTMLCompressorFilter(default)
+/**
+ * Play module for providing the HTML compressor filter.
+ */
+class HTMLCompressorFilterModule extends Module {
+  def bindings(environment: Environment, configuration: Configuration) = {
+    Seq(
+      bind[HTMLCompressorFilter].to[DefaultHTMLCompressorFilter]
+    )
+  }
+}
+
+/**
+ * Injection helper for the HTML compressor filter.
+ */
+trait HTMLCompressorFilterComponents {
+
+  def configuration: Configuration
+  def environment: Environment
+
+  lazy val filter: HTMLCompressorFilter = new DefaultHTMLCompressorFilter(configuration, environment)
 }
