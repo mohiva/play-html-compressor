@@ -6,13 +6,13 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.4.1"
+  "com.mohiva" %% "play-html-compressor" % "0.5.0"
 )
 ```
 
 ### History
 
-* For Play Framework 2.4 use version 0.4.1
+* For Play Framework 2.4 use version 0.5.0
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
 * For Play Framework 2.1 use version 0.1-SNAPSHOT
@@ -24,171 +24,171 @@ configurations, but it can also be used with user-defined configurations. The
 following two examples shows how to define the filters with the default and the
 user-defined configurations.
 
-### Default filter
+To provide the filters for your application you must define it as described in the Play 
+Documentation ([Scala](https://www.playframework.com/documentation/2.4.x/ScalaHttpFilters#Using-filters), [Java](https://www.playframework.com/documentation/2.4.x/JavaHttpFilters#Using-filters)).
 
-The default HTMLCompressorFilter has the same configuration as the user-defined filter below.
+### Provide filters
 
 #### For Scala users
 
 ```scala
-import play.api.mvc.WithFilters
+import javax.inject.Inject
+
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter
+import play.api.http.HttpFilters
+import play.api.mvc.EssentialFilter
 
-/**
- * Uses the default implementation of the HTML and XML compressor filters.
- */
-object Global extends WithFilters(HTMLCompressorFilter(), XMLCompressorFilter())
+class Filters @Inject() (
+  htmlCompressorFilter: HTMLCompressorFilter, 
+  xmlCompressorFilter: XMLCompressorFilter) 
+  extends HttpFilters {
+  
+  override def filters: Seq[EssentialFilter] = Seq(
+    htmlCompressorFilter, 
+    xmlCompressorFilter
+  )
+}
 ```
 
 #### For Java users
 
 ```java
-import play.GlobalSettings;
+import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
+import com.mohiva.play.xmlcompressor.XMLCompressorFilter;
 import play.api.mvc.EssentialFilter;
-import com.mohiva.play.htmlcompressor.java.HTMLCompressorFilter;
-import com.mohiva.play.xmlcompressor.java.XMLCompressorFilter;
+import play.http.HttpFilters;
 
-/**
- * Uses the default implementations of the HTML and XML compressor filters.
- */
-public class Global extends GlobalSettings {
+import javax.inject.Inject;
 
-    /**
-     * Get the filters that should be used to handle each request.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends EssentialFilter> Class<T>[] filters() {
-        return new Class[] {
-            HTMLCompressorFilter.class,
-            XMLCompressorFilter.class
+public class DefaultFilter implements HttpFilters {
+
+    private HTMLCompressorFilter htmlCompressorFilter;
+    private XMLCompressorFilter xmlCompressorFilter;
+
+    @Inject
+    public DefaultFilter(
+        HTMLCompressorFilter htmlCompressorFilter, 
+        XMLCompressorFilter xmlCompressorFilter) {
+        
+        this.htmlCompressorFilter = htmlCompressorFilter;
+        this.xmlCompressorFilter = xmlCompressorFilter;
+    }
+
+    @Override
+    public EssentialFilter[] filters() {
+        return new EssentialFilter[] {
+            htmlCompressorFilter, 
+            xmlCompressorFilter
         };
     }
 }
+
 ```
+
+### Default filter
+
+For the default filters we provide DI modules which will be automatically enabled if you 
+pull in the dependency. You must only provide your instance of `HttpFilters` as described 
+above.
 
 ### User-defined filter
 
-#### For Scala users
+For user defined filters there is a little bit mor to do. First you must create your instances of
+the filter. As next you must provide your instance of `HttpFilters` as described above. At last
+you must provide the bindings for you created filter and disable the default DI modules.
+
+#### Implement filters
+
+##### For Scala users
 
 ```scala
+import javax.inject.Inject
 
-import play.api.mvc.WithFilters
-import play.api.Play
-import play.api.Play.current
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
+import play.api.{Configuration, Environment, Mode}
 
-/**
- * Uses a user-defined implementation of the HTML compressor filter.
- */
-object Global extends WithFilters(HTMLCompressorFilter())
+class CustomHTMLCompressorFilter @Inject() (
+  val configuration: Configuration, environment: Environment)
+  extends HTMLCompressorFilter {
 
-/**
- * Defines a user-defined HTML compressor filter.
- */
-object HTMLCompressorFilter {
-
-  /**
-   * Creates the HTML compressor filter.
-   *
-   * @return The HTML compressor filter.
-   */
-  def apply() = new HTMLCompressorFilter({
-    val compressor = new HtmlCompressor()
-    if (Play.isDev) {
-      compressor.setPreserveLineBreaks(true)
+  override val compressor: HtmlCompressor = {
+    val c = new HtmlCompressor()
+    if (environment.mode == Mode.Dev) {
+      c.setPreserveLineBreaks(true)
     }
 
-    compressor.setRemoveComments(true)
-    compressor.setRemoveIntertagSpaces(true)
-    compressor.setRemoveHttpProtocol(true)
-    compressor.setRemoveHttpsProtocol(true)
-    compressor
-  })
+    c.setRemoveComments(true)
+    c.setRemoveIntertagSpaces(false)
+    c.setRemoveHttpProtocol(true)
+    c.setRemoveHttpsProtocol(true)
+    c
+  }
 }
 
 ```
 
-#### For Java users
+##### For Java users
 
 ```java
-import play.Play;
-import play.GlobalSettings;
-import play.api.mvc.EssentialFilter;
-import com.googlecode.htmlcompressor.compressor.HtmlCompressor
-import com.mohiva.play.htmlcompressor.java.HTMLCompressorFilter;
-import com.mohiva.play.htmlcompressor.java.HTMLCompressorBuilder;
+import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
+import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
+import play.Environment;
+import play.Mode;
+import play.api.Configuration;
 
-/**
- * Uses a user-defined implementation of the HTML compressor filter.
- */
-public class Global extends GlobalSettings {
+import javax.inject.Inject;
 
-    /**
-     * Get the filters that should be used to handle each request.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends EssentialFilter> Class<T>[] filters() {
-        return new Class[]{CustomHTMLCompressorFilter.class};
+public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
+
+    private Configuration configuration;
+    private Environment environment;
+
+    @Inject
+    public CustomHTMLCompressorFilter(
+        Configuration configuration, Environment environment) {
+        
+        this.configuration = configuration;
+        this.environment = environment;
     }
 
-    /**
-     * Custom implementation of the HTML compressor filter.
-     */
-    public static class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
-        public CustomHTMLCompressorFilter() {
-            super(new CustomHTMLCompressorBuilder());
-        }
+    @Override
+    public Configuration configuration() {
+        return configuration;
     }
 
-    /**
-     * The builder for the custom HTML compressor.
-     */
-    public static class CustomHTMLCompressorBuilder implements HTMLCompressorBuilder {
-        public HtmlCompressor build() {
-            HtmlCompressor compressor = new HtmlCompressor();
-            if (Play.isDev()) {
-                compressor.setPreserveLineBreaks(true);
-            }
-
-            compressor.setRemoveComments(true);
-            compressor.setRemoveIntertagSpaces(true);
-            compressor.setRemoveHttpProtocol(true);
-            compressor.setRemoveHttpsProtocol(true);
-            return compressor;
+    @Override
+    public HtmlCompressor compressor() {
+        HtmlCompressor compressor = new HtmlCompressor();
+        if (environment.mode() == Mode.DEV) {
+            compressor.setPreserveLineBreaks(true);
         }
+
+        compressor.setRemoveComments(true);
+        compressor.setRemoveIntertagSpaces(true);
+        compressor.setRemoveHttpProtocol(true);
+        compressor.setRemoveHttpsProtocol(true);
+
+        return compressor;
     }
 }
+
 ```
 
-#### User-defined XMLCompressorFilter
+#### Provide bindings
 
-You can also use a user defined XMLCompressorFilter. The approach is analogical
-to the examples given above.
+To provide your bindings for your user defined filter you must either create a new module 
+or you can add the binding to your default DI module. This process is detailed documented 
+for [Scala](https://www.playframework.com/documentation/2.4.x/ScalaDependencyInjection) and 
+[Java](https://www.playframework.com/documentation/2.4.x/JavaDependencyInjection) users. So 
+please refer to this documentation.
 
-### HTMLCompressorFilter & GzipFilter
+##### Disable default modules
 
-Be careful when using HTMLCompressorFilter in combination with the Play
-GzipFilter. HTMLCompressorFilter can not work on source that has already been
-gzipped.
-
-Unfortunately, there is no official way to control the order in which filters
-will be applied to responses.
-
-Fortunately, Play Framework will apply the filters in reverse order of
-appearance in the `WithFilters` constructor. So this code will work as expected
-(applying HTMLCompressorFilter first and GzipFilter on the compressed HTML):
+To disable the default modules you must append the modules to the `play.modules.disabled` property in `application.conf`:
 
 ```scala
-object Global extends WithFilters(new GzipFilter(), HTMLCompressorFilter()) {
-  ...
-}
-```
-
-This code will _not_ work, resulting in an empty response body (or worse):
-```scala
-object Global extends WithFilters(HTMLCompressorFilter(), new GzipFilter()) {
-  ...
-}
+play.modules.disabled += "com.mohiva.play.htmlcompressor.HTMLCompressorFilterModule"
+play.modules.disabled += "com.mohiva.play.xmlcompressor.XMLCompressorFilterModule"
 ```

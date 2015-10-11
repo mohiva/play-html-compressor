@@ -8,13 +8,14 @@ import xerial.sbt.Sonatype._
 
 name := "play-html-compressor"
 
-version := "0.4.1"
+version := "0.5.0"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
   "rhino" % "js" % "1.7R2",
   "org.easytesting" % "fest-assert" % "1.4" % Test,
   specs2 % Test,
+  javaCore % Test,
   filters % Test
 )
 

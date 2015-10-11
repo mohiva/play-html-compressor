@@ -10,6 +10,10 @@
  */
 package com.mohiva.play.xmlcompressor
 
+import javax.inject.Inject
+
+import play.api.{ Environment, Configuration }
+import play.api.inject.Module
 import play.twirl.api.Xml
 import play.api.mvc._
 import play.api.http.HeaderNames
@@ -19,10 +23,8 @@ import com.mohiva.play.compressor.CompressorFilter
 
 /**
  * Uses Google's XML Processor to compress the XML code of a response.
- *
- * @param f Function which returns the configured XML compressor.
  */
-class XMLCompressorFilter(f: => XmlCompressor) extends CompressorFilter[XmlCompressor](f) {
+abstract class XMLCompressorFilter extends CompressorFilter[XmlCompressor] {
 
   /**
    * Check if the given result is a XML result.
@@ -39,22 +41,35 @@ class XMLCompressorFilter(f: => XmlCompressor) extends CompressorFilter[XmlCompr
 }
 
 /**
- * Default implementation of the XML compressor filter.
+ * The default implementation of the [[XMLCompressorFilter]].
+ *
+ * @param configuration The Play configuration.
  */
-object XMLCompressorFilter {
+class DefaultXMLCompressorFilter @Inject() (val configuration: Configuration) extends XMLCompressorFilter {
 
   /**
-   * Gets the default Google XML compressor instance.
+   * The compressor instance.
    */
-  lazy val default = {
-    // All XmlCompressor options default to true - so nothing to do here...
-    new XmlCompressor()
+  override val compressor: XmlCompressor = new XmlCompressor()
+}
+
+/**
+ * Play module for providing the XML compressor filter.
+ */
+class XMLCompressorFilterModule extends Module {
+  def bindings(environment: Environment, configuration: Configuration) = {
+    Seq(
+      bind[XMLCompressorFilter].to[DefaultXMLCompressorFilter]
+    )
   }
+}
 
-  /**
-   * Creates the XML compressor filter.
-   *
-   * @return The XML compressor filter.
-   */
-  def apply(): XMLCompressorFilter = new XMLCompressorFilter(default)
+/**
+ * Injection helper for the XML compressor filter.
+ */
+trait XMLCompressorFilterComponents {
+
+  def configuration: Configuration
+
+  lazy val filter: XMLCompressorFilter = new DefaultXMLCompressorFilter(configuration)
 }

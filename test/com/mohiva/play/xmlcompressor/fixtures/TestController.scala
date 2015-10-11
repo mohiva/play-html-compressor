@@ -1,3 +1,13 @@
+/**
+ * Play HTML Compressor
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://github.com/mohiva/play-html-compressor/blob/master/LICENSE.md
+ */
 package com.mohiva.play.xmlcompressor.fixtures
 
 import controllers.AssetsBuilder
@@ -12,7 +22,7 @@ import scala.concurrent.Future
 /**
  * Test controller.
  */
-class Application extends AssetsBuilder(DefaultHttpErrorHandler) {
+class TestController extends AssetsBuilder(DefaultHttpErrorHandler) {
 
   /**
    * The template to compress.
@@ -54,12 +64,15 @@ class Application extends AssetsBuilder(DefaultHttpErrorHandler) {
   def staticAsset = at("/", "static.xml")
 
   /**
-   * Action with chunked transfer encoding
+   * Action with chunked transfer encoding.
    */
   def chunked = Action {
     val parts = List(" <node> ", " <subnode> ", " text", " </subnode> ", " </node> ").map(Xml.apply)
     Ok.chunked(Enumerator.enumerate(parts))
   }
 
+  /**
+   * Action with gzipped asset.
+   */
   def gzipped = staticAsset
 }

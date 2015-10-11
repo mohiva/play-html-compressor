@@ -1,10 +1,19 @@
+/**
+ * Play HTML Compressor
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://github.com/mohiva/play-html-compressor/blob/master/LICENSE.md
+ */
 package com.mohiva.play.compressor
 
 import play.api.http.HttpProtocol
 import play.twirl.api.Content
 import play.api.mvc._
-import play.api.Play
-import play.api.Play.current
+import play.api.Configuration
 import play.api.http.HeaderNames._
 import play.api.libs.iteratee.{ Enumerator, Iteratee }
 import scala.concurrent.Future
@@ -18,17 +27,22 @@ import com.googlecode.htmlcompressor.compressor.Compressor
  * @see http://jazzy.id.au/default/2013/02/16/understanding_the_play_filter_api.html
  * @see http://stackoverflow.com/questions/14154671/is-it-possible-to-prettify-scala-templates-using-play-framework-2
  */
-abstract class CompressorFilter[C <: Compressor](f: => C) extends Filter {
-
-  /**
-   * The charset used by Play.
-   */
-  lazy val charset = Play.configuration.getString("default.charset").getOrElse("utf-8")
+abstract class CompressorFilter[C <: Compressor] extends Filter {
 
   /**
    * The compressor instance.
    */
-  lazy val compressor = f
+  val compressor: C
+
+  /**
+   * The Play configuration instance.
+   */
+  val configuration: Configuration
+
+  /**
+   * The charset used by Play.
+   */
+  lazy val charset = configuration.getString("default.charset").getOrElse("utf-8")
 
   /**
    * Apply the filter.
