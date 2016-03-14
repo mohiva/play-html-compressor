@@ -10,6 +10,8 @@
  */
 package com.mohiva.play.xmlcompressor.fixtures
 
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import controllers.AssetsBuilder
 import play.api.http.DefaultHttpErrorHandler
 import play.api.libs.iteratee.Enumerator
@@ -67,8 +69,8 @@ class TestController extends AssetsBuilder(DefaultHttpErrorHandler) {
    * Action with chunked transfer encoding.
    */
   def chunked = Action {
-    val parts = List(" <node> ", " <subnode> ", " text", " </subnode> ", " </node> ").map(Xml.apply)
-    Ok.chunked(Enumerator.enumerate(parts))
+    val parts = List(" <node> ", " <subnode> ", " text", " </subnode> ", " </node> ").map(xml => ByteString(xml))
+    Ok.chunked(Source(parts)).as("application/xml")
   }
 
   /**

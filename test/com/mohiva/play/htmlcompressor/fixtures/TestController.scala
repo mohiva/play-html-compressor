@@ -10,7 +10,10 @@
  */
 package com.mohiva.play.htmlcompressor.fixtures
 
-import play.api.http.DefaultHttpErrorHandler
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
+import play.api.http.HttpChunk.Chunk
+import play.api.http.{MimeTypes, HttpEntity, DefaultHttpErrorHandler}
 import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
 import play.twirl.api.Html
@@ -44,14 +47,14 @@ class TestController extends AssetsBuilder(DefaultHttpErrorHandler) {
    * A default action.
    */
   def action = Action {
-    Ok(template)
+    Ok(template).as("text/html")
   }
 
   /**
    * A async action.
    */
   def asyncAction = Action.async {
-    Future.successful(Ok(template))
+    Future.successful(Ok(template).as("text/html"))
   }
 
   /**
@@ -70,8 +73,8 @@ class TestController extends AssetsBuilder(DefaultHttpErrorHandler) {
    * Action with chunked transfer encoding.
    */
   def chunked = Action {
-    val parts = List(" <html> ", " <body> ", " <h1> Title </h1>", " </body> ", " </html> ").map(Html.apply)
-    Ok.chunked(Enumerator.enumerate(parts))
+    val parts = List(" <html> ", " <body> ", " <h1> Title </h1>", " </body> ", " </html> ").map(html => ByteString(html))
+    Ok.chunked(Source(parts)).as("text/html")
   }
 
   /**

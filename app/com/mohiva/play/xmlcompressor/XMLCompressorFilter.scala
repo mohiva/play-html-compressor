@@ -12,14 +12,12 @@ package com.mohiva.play.xmlcompressor
 
 import javax.inject.Inject
 
-import play.api.{ Environment, Configuration }
-import play.api.inject.Module
-import play.twirl.api.Xml
-import play.api.mvc._
-import play.api.http.HeaderNames
-import play.api.libs.iteratee.Enumerator
+import akka.stream.Materializer
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
 import com.mohiva.play.compressor.CompressorFilter
+import play.api.inject.Module
+import play.api.mvc._
+import play.api.{Configuration, Environment}
 
 /**
  * Uses Google's XML Processor to compress the XML code of a response.
@@ -34,9 +32,8 @@ abstract class XMLCompressorFilter extends CompressorFilter[XmlCompressor] {
    */
   override protected def isCompressible(result: Result) = {
     // We cannot simply look for MimeTypes.XML because of things like "application/atom+xml".
-    lazy val contentTypeXml = result.header.headers.get(HeaderNames.CONTENT_TYPE).exists(_.contains("xml"))
-    lazy val xmlEnumerator = manifest[Enumerator[Xml]].runtimeClass.isInstance(result.body)
-    super.isCompressible(result) && contentTypeXml && xmlEnumerator
+    lazy val contentTypeXml = result.body.contentType.exists(_.contains("xml"))
+    super.isCompressible(result) && contentTypeXml
   }
 }
 
@@ -45,7 +42,7 @@ abstract class XMLCompressorFilter extends CompressorFilter[XmlCompressor] {
  *
  * @param configuration The Play configuration.
  */
-class DefaultXMLCompressorFilter @Inject() (val configuration: Configuration) extends XMLCompressorFilter {
+class DefaultXMLCompressorFilter @Inject() (val configuration: Configuration, val mat: Materializer) extends XMLCompressorFilter {
 
   /**
    * The compressor instance.
@@ -70,6 +67,7 @@ class XMLCompressorFilterModule extends Module {
 trait XMLCompressorFilterComponents {
 
   def configuration: Configuration
+  def mat: Materializer
 
-  lazy val filter: XMLCompressorFilter = new DefaultXMLCompressorFilter(configuration)
+  lazy val filter: XMLCompressorFilter = new DefaultXMLCompressorFilter(configuration, mat)
 }

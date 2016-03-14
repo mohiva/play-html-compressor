@@ -10,6 +10,8 @@
  */
 package com.mohiva.play.htmlcompressor
 
+import akka.stream.Materializer
+import akka.util.ByteString
 import com.mohiva.play.compressor.Helper
 import com.mohiva.play.htmlcompressor.fixtures.{ CustomHTMLCompressorFilter, DefaultFilter, RequestHandler, WithGzipFilter }
 import org.apache.commons.io.IOUtils
@@ -28,7 +30,7 @@ class HTMLCompressorFilterSpec extends Specification {
   "The default filter" should {
     "compress an HTML page" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(FakeRequest(GET, "/action"))
+        val Some(result) = route(defaultApp, FakeRequest(GET, "/action"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -38,7 +40,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "compress an async HTML page" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(FakeRequest(GET, "/asyncAction"))
+        val Some(result) = route(defaultApp, FakeRequest(GET, "/asyncAction"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -48,7 +50,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "not compress a non HTML result" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(FakeRequest(GET, "/nonHTML"))
+        val Some(result) = route(defaultApp, FakeRequest(GET, "/nonHTML"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/plain")
@@ -59,7 +61,7 @@ class HTMLCompressorFilterSpec extends Specification {
     "compress static assets" in new Context {
       new WithApplication(defaultApp) {
         val file = scala.io.Source.fromInputStream(app.resourceAsStream("static.html").get).mkString
-        val Some(result) = route(FakeRequest(GET, "/static"))
+        val Some(result) = route(defaultApp, FakeRequest(GET, "/static"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -70,7 +72,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "not compress result with chunked HTML result" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(FakeRequest(GET, "/chunked"))
+        val Some(result) = route(defaultApp, FakeRequest(GET, "/chunked"))
         status(result) must beEqualTo(OK)
         contentType(result) must beSome("text/html")
         header(CONTENT_LENGTH, result) must beNone
@@ -81,7 +83,7 @@ class HTMLCompressorFilterSpec extends Specification {
   "The custom filter" should {
     "compress an HTML page" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(FakeRequest(GET, "/action"))
+        val Some(result) = route(customApp, FakeRequest(GET, "/action"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -91,7 +93,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "compress an async HTML page" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(FakeRequest(GET, "/asyncAction"))
+        val Some(result) = route(customApp, FakeRequest(GET, "/asyncAction"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -101,7 +103,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "not compress a non HTML result" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(FakeRequest(GET, "/nonHTML"))
+        val Some(result) = route(customApp, FakeRequest(GET, "/nonHTML"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/plain")
@@ -112,7 +114,7 @@ class HTMLCompressorFilterSpec extends Specification {
     "compress static assets" in new Context {
       new WithApplication(customApp) {
         val file = scala.io.Source.fromInputStream(app.resourceAsStream("static.html").get).mkString
-        val Some(result) = route(FakeRequest(GET, "/static"))
+        val Some(result) = route(customApp, FakeRequest(GET, "/static"))
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -125,8 +127,8 @@ class HTMLCompressorFilterSpec extends Specification {
   "The default filter with Gzip Filter" should {
     "first compress then gzip result" in new Context {
       new WithApplication(gzipApp) {
-        val Some(original) = route(FakeRequest(GET, "/action"))
-        val Some(gzipped) = route(FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip"))
+        val Some(original) = route(gzipApp, FakeRequest(GET, "/action"))
+        val Some(gzipped) = route(gzipApp, FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip"))
 
         status(gzipped) must beEqualTo(OK)
         contentType(gzipped) must beSome("text/html")
@@ -142,8 +144,8 @@ class HTMLCompressorFilterSpec extends Specification {
         // then Assets controller responds with static.html.gz
         // we don't want to further pass this through HTML Compressor
 
-        val original = IOUtils.toByteArray(app.resourceAsStream("static.html").get)
-        val Some(result) = route(FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
+        val original = ByteString(IOUtils.toByteArray(app.resourceAsStream("static.html").get))
+        val Some(result) = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
 
         status(result) must beEqualTo(OK)
         contentType(result) must beSome("text/html")
@@ -170,8 +172,8 @@ class HTMLCompressorFilterSpec extends Specification {
      * An app with the custom HTML compressor filter.
      */
     val customApp = new GuiceApplicationBuilder()
-      .overrides(bind[HTMLCompressorFilter].to[CustomHTMLCompressorFilter])
       .configure("play.http.filters" -> classOf[DefaultFilter].getCanonicalName)
+      .overrides(bind[HTMLCompressorFilter].to[CustomHTMLCompressorFilter])
       .configure("play.http.requestHandler" -> classOf[RequestHandler].getCanonicalName)
       .build()
 

@@ -10,6 +10,8 @@
  */
 package com.mohiva.play.htmlcompressor.java;
 
+import akka.stream.Materializer;
+import akka.util.ByteString;
 import com.mohiva.play.compressor.Helper;
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
 import com.mohiva.play.htmlcompressor.fixtures.RequestHandler;
@@ -19,12 +21,13 @@ import com.mohiva.play.htmlcompressor.fixtures.java.WithGzipFilter;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import play.Application;
-import play.Play;
+import play.api.inject.guice.GuiceInjector;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.inject.Bindings.bind;
@@ -40,12 +43,13 @@ public class HTMLCompressorFilterTest {
      */
     @Test
     public void defaultFilterCompressHTMLPage() {
+
         running(defaultApp(), () -> {
             Result result = route(fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
-            assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
+            assertThat(result.contentType().get()).isEqualTo("text/html");
+            assertThat(contentAsString(result, defaultApp().injector().instanceOf(Materializer.class))).startsWith("<!DOCTYPE html> <html> <head>");
         });
     }
 
@@ -58,7 +62,7 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
+            assertThat(result.contentType().get()).isEqualTo("text/html");
             assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
         });
     }
@@ -72,7 +76,7 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/nonHTML"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/plain");
+            assertThat(result.contentType().get()).isEqualTo("text/plain");
             assertThat(contentAsString(result)).startsWith("  <html/>");
         });
     }
@@ -83,7 +87,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressStaticAssets() {
         running(defaultApp(), () -> {
-            InputStream is = Play.application().resourceAsStream("static.html");
+            InputStream is = defaultApp().resourceAsStream("static.html");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
@@ -93,8 +97,8 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
-            assertThat(contentAsString(result)).startsWith("<!DOCTYPE html> <html> <head>");
+            assertThat(result.contentType().orElse("")).isEqualTo("text/html");
+            assertThat(contentAsString(result, defaultApp().injector().instanceOf(Materializer.class))).startsWith("<!DOCTYPE html> <html> <head>");
             assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
         });
     }
@@ -109,8 +113,8 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/chunked"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
-            assertThat(result.header(CONTENT_LENGTH)).isNull();
+            assertThat(result.contentType().get()).isEqualTo("text/html");
+            assertThat(result.header(CONTENT_LENGTH)).isEqualTo(Optional.empty());
         });
     }
 
@@ -123,7 +127,7 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
+            assertThat(result.contentType().get()).isEqualTo("text/html");
             assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
         });
     }
@@ -137,7 +141,7 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
+            assertThat(result.contentType().get()).isEqualTo("text/html");
             assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
         });
     }
@@ -151,7 +155,7 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/nonHTML"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/plain");
+            assertThat(result.contentType().get()).isEqualTo("text/plain");
             assertThat(contentAsString(result)).startsWith("  <html/>");
         });
     }
@@ -162,7 +166,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void customFilterCompressStaticAssets() {
         running(customApp(), () -> {
-            InputStream is = Play.application().resourceAsStream("static.html");
+            InputStream is = customApp().resourceAsStream("static.html");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
@@ -172,8 +176,8 @@ public class HTMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/html");
-            assertThat(contentAsString(result)).startsWith("<!DOCTYPE html><html><head>");
+            assertThat(result.contentType().orElse("")).isEqualTo("text/html");
+            assertThat(contentAsString(result, customApp().injector().instanceOf(Materializer.class))).startsWith("<!DOCTYPE html><html><head>");
             assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
         });
     }
@@ -188,8 +192,8 @@ public class HTMLCompressorFilterTest {
             Result gzipped  = route(fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
 
             assertThat(gzipped.status()).isEqualTo(OK);
-            assertThat(gzipped.contentType()).isEqualTo("text/html");
-            assertThat(gzipped.header(CONTENT_ENCODING)).isEqualTo("gzip");
+            assertThat(gzipped.contentType().get()).isEqualTo("text/html");
+            assertThat(gzipped.header(CONTENT_ENCODING)).isEqualTo(Optional.of("gzip"));
             assertThat(Helper.gunzip(contentAsBytes(gzipped))).isEqualTo(contentAsBytes(original));
         });
     }
@@ -206,13 +210,13 @@ public class HTMLCompressorFilterTest {
     public void defaultWithGzipFilterNotCompressGzippedResult() {
         running(gzipApp(), () -> {
             try {
-                byte[] original = IOUtils.toByteArray(Play.application().resourceAsStream("static.html"));
+                ByteString original = ByteString.fromArray(IOUtils.toByteArray(gzipApp().resourceAsStream("static.html")));
                 Result result = route(fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
 
                 assertThat(result.status()).isEqualTo(OK);
-                assertThat(result.contentType()).isEqualTo("text/html");
-                assertThat(result.header(CONTENT_ENCODING)).isEqualTo("gzip");
-                assertThat(Helper.gunzip(contentAsBytes(result))).isEqualTo(original);
+                assertThat(result.contentType().get()).isEqualTo("text/html");
+                assertThat(result.header(CONTENT_ENCODING)).isEqualTo(Optional.of("gzip"));
+                assertThat(Helper.gunzip(contentAsBytes(result, gzipApp().injector().instanceOf(Materializer.class)))).isEqualTo(original);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

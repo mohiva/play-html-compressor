@@ -13,6 +13,7 @@ package com.mohiva.play.compressor
 import java.io.ByteArrayInputStream
 import java.util.zip.GZIPInputStream
 
+import akka.util.ByteString
 import org.apache.commons.io.IOUtils
 
 /**
@@ -26,7 +27,7 @@ object Helper {
    * @param data The data to unzip.
    * @return The unzipped data.
    */
-  def gunzip(data: Array[Byte]): Array[Byte] = {
-    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)))
+  def gunzip(data: ByteString): ByteString = {
+    ByteString(IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data.toArray))))
   }
 }
