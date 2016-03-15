@@ -12,6 +12,7 @@ package com.mohiva.play.xmlcompressor.fixtures
 
 import javax.inject.Inject
 
+import akka.stream.Materializer
 import com.googlecode.htmlcompressor.compressor.XmlCompressor
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter
 import play.api.Configuration
@@ -22,7 +23,7 @@ import play.filters.gzip.GzipFilter
 /**
  * A custom XML compressor filter.
  */
-class CustomXMLCompressorFilter @Inject() (val configuration: Configuration) extends XMLCompressorFilter {
+class CustomXMLCompressorFilter @Inject() (val configuration: Configuration, val mat: Materializer) extends XMLCompressorFilter {
   override val compressor = {
     val c = new XmlCompressor()
     c.setRemoveComments(false)

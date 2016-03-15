@@ -8,7 +8,7 @@ import xerial.sbt.Sonatype._
 
 name := "play-html-compressor"
 
-version := "0.5.0"
+version := "0.6.0"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
@@ -62,7 +62,7 @@ pomExtra := pom
 // Compiler settings
 //*******************************
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 crossScalaVersions := Seq("2.10.5", "2.11.7")
 

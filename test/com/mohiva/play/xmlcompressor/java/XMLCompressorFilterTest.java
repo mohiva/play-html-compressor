@@ -10,6 +10,8 @@
  */
 package com.mohiva.play.xmlcompressor.java;
 
+import akka.stream.Materializer;
+import akka.util.ByteString;
 import com.mohiva.play.compressor.Helper;
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter;
 import com.mohiva.play.xmlcompressor.fixtures.RequestHandler;
@@ -19,12 +21,12 @@ import com.mohiva.play.xmlcompressor.fixtures.java.WithGzipFilter;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import play.Application;
-import play.Play;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.inject.Bindings.bind;
@@ -44,7 +46,7 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
             assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
         });
     }
@@ -58,7 +60,7 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
             assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
         });
     }
@@ -69,7 +71,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressStaticAssets() {
         running(defaultApp(), () -> {
-            InputStream is = Play.application().resourceAsStream("static.xml");
+            InputStream is = defaultApp().resourceAsStream("static.xml");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
@@ -79,8 +81,8 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
-            assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
+            assertThat(contentAsString(result, defaultApp().injector().instanceOf(Materializer.class))).startsWith("<?xml version=\"1.0\"?><node><subnode>");
             assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
         });
     }
@@ -94,7 +96,7 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/nonXML"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/plain");
+            assertThat(result.contentType()).isEqualTo(Optional.of("text/plain"));
             assertThat(contentAsString(result)).startsWith("  <html/>");
         });
     }
@@ -108,8 +110,8 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/chunked"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
-            assertThat(result.header(CONTENT_LENGTH)).isNull();
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
+            assertThat(result.header(CONTENT_LENGTH)).isEqualTo(Optional.empty());
         });
     }
 
@@ -122,7 +124,7 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
             assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
         });
     }
@@ -136,7 +138,7 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
             assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
         });
     }
@@ -150,7 +152,7 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/nonXML"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("text/plain");
+            assertThat(result.contentType()).isEqualTo(Optional.of("text/plain"));
             assertThat(contentAsString(result)).startsWith("  <html/>");
         });
     }
@@ -161,7 +163,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void customFilterCompressStaticAssets() {
         running(customApp(), () -> {
-            InputStream is = Play.application().resourceAsStream("static.xml");
+            InputStream is = customApp().resourceAsStream("static.xml");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
@@ -171,8 +173,8 @@ public class XMLCompressorFilterTest {
             Result result = route(fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
-            assertThat(result.contentType()).isEqualTo("application/xml");
-            assertThat(contentAsString(result)).startsWith("<?xml version=\"1.0\"?><node><subnode>");
+            assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
+            assertThat(contentAsString(result, defaultApp().injector().instanceOf(Materializer.class))).startsWith("<?xml version=\"1.0\"?><node><subnode>");
             assertThat(result.header(CONTENT_LENGTH)).isNotEqualTo(String.valueOf(file.length()));
         });
     }
@@ -187,8 +189,8 @@ public class XMLCompressorFilterTest {
             Result gzipped  = route(fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
 
             assertThat(gzipped.status()).isEqualTo(OK);
-            assertThat(gzipped.contentType()).isEqualTo("application/xml");
-            assertThat(gzipped.header(CONTENT_ENCODING)).isEqualTo("gzip");
+            assertThat(gzipped.contentType()).isEqualTo(Optional.of("application/xml"));
+            assertThat(gzipped.header(CONTENT_ENCODING)).isEqualTo(Optional.of("gzip"));
             assertThat(Helper.gunzip(contentAsBytes(gzipped))).isEqualTo(contentAsBytes(original));
         });
     }
@@ -205,13 +207,13 @@ public class XMLCompressorFilterTest {
     public void defaultWithGzipFilterNotCompressGzippedResult() {
         running(gzipApp(), () -> {
             try {
-                byte[] original = IOUtils.toByteArray(Play.application().resourceAsStream("static.xml"));
+                ByteString original = ByteString.fromArray(IOUtils.toByteArray(gzipApp().resourceAsStream("static.xml")));
                 Result result = route(fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
 
                 assertThat(result.status()).isEqualTo(OK);
-                assertThat(result.contentType()).isEqualTo("application/xml");
-                assertThat(result.header(CONTENT_ENCODING)).isEqualTo("gzip");
-                assertThat(Helper.gunzip(contentAsBytes(result))).isEqualTo(original);
+                assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
+                assertThat(result.header(CONTENT_ENCODING)).isEqualTo(Optional.of("gzip"));
+                assertThat(Helper.gunzip(contentAsBytes(result, gzipApp().injector().instanceOf(Materializer.class)))).isEqualTo(original);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

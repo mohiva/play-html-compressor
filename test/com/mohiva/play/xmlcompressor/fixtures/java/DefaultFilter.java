@@ -11,7 +11,7 @@
 package com.mohiva.play.xmlcompressor.fixtures.java;
 
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter;
-import play.api.mvc.EssentialFilter;
+import play.mvc.EssentialFilter;
 import play.http.HttpFilters;
 
 import javax.inject.Inject;
@@ -30,6 +30,6 @@ public class DefaultFilter implements HttpFilters {
 
     @Override
     public EssentialFilter[] filters() {
-        return new EssentialFilter[] {xmlCompressorFilter};
+        return new EssentialFilter[] {xmlCompressorFilter.asJava()};
     }
 }

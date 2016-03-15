@@ -10,6 +10,7 @@
  */
 package com.mohiva.play.xmlcompressor.fixtures.java;
 
+import akka.stream.Materializer;
 import com.googlecode.htmlcompressor.compressor.XmlCompressor;
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter;
 import play.api.Configuration;
@@ -22,10 +23,12 @@ import javax.inject.Inject;
 public class CustomXMLCompressorFilter extends XMLCompressorFilter {
 
     private Configuration configuration;
+    private Materializer mat;
 
     @Inject
-    public CustomXMLCompressorFilter(Configuration configuration) {
+    public CustomXMLCompressorFilter(Configuration configuration, Materializer mat) {
         this.configuration = configuration;
+        this.mat = mat;
     }
 
     @Override
@@ -39,5 +42,10 @@ public class CustomXMLCompressorFilter extends XMLCompressorFilter {
         compressor.setRemoveComments(false);
 
         return compressor;
+    }
+
+    @Override
+    public Materializer mat() {
+        return mat;
     }
 }

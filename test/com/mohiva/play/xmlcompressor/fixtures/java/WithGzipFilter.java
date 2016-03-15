@@ -11,7 +11,7 @@
 package com.mohiva.play.xmlcompressor.fixtures.java;
 
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter;
-import play.api.mvc.EssentialFilter;
+import play.mvc.EssentialFilter;
 import play.filters.gzip.GzipFilter;
 import play.http.HttpFilters;
 
@@ -33,6 +33,6 @@ public class WithGzipFilter implements HttpFilters {
 
     @Override
     public EssentialFilter[] filters() {
-        return new EssentialFilter[] {gzip, xmlCompressorFilter};
+        return new EssentialFilter[] {gzip.asJava(), xmlCompressorFilter.asJava()};
     }
 }

@@ -12,6 +12,7 @@ package com.mohiva.play.htmlcompressor.fixtures
 
 import javax.inject.Inject
 
+import akka.stream.Materializer
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
 import play.api.{ Environment, Mode, Configuration }
@@ -22,7 +23,7 @@ import play.filters.gzip.GzipFilter
 /**
  * A custom HTML compressor filter.
  */
-class CustomHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment)
+class CustomHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment, val mat: Materializer)
     extends HTMLCompressorFilter {
 
   override val compressor: HtmlCompressor = {

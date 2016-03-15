@@ -6,12 +6,13 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.5.0"
+  "com.mohiva" %% "play-html-compressor" % "0.6.0"
 )
 ```
 
 ### History
 
+* For Play Framework 2.5 use version 0.6.0
 * For Play Framework 2.4 use version 0.5.0
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
@@ -105,12 +106,13 @@ you must provide the bindings for you created filter and disable the default DI 
 ```scala
 import javax.inject.Inject
 
+import akka.stream.Materializer
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
 import play.api.{Configuration, Environment, Mode}
 
 class CustomHTMLCompressorFilter @Inject() (
-  val configuration: Configuration, environment: Environment)
+  val configuration: Configuration, environment: Environment, val mat: Materializer)
   extends HTMLCompressorFilter {
 
   override val compressor: HtmlCompressor = {
@@ -132,6 +134,7 @@ class CustomHTMLCompressorFilter @Inject() (
 ##### For Java users
 
 ```java
+import akka.stream.Materializer;
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
 import play.Environment;
@@ -144,13 +147,15 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
     private Configuration configuration;
     private Environment environment;
+    private Materializer mat;
 
     @Inject
     public CustomHTMLCompressorFilter(
-        Configuration configuration, Environment environment) {
+        Configuration configuration, Environment environment, Materializer mat) {
         
         this.configuration = configuration;
         this.environment = environment;
+        this.mat = mat;
     }
 
     @Override
@@ -172,6 +177,12 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
         return compressor;
     }
+    
+    @Override
+    public Materializer mat() {
+        return mat;
+    }
+        
 }
 
 ```
@@ -180,8 +191,8 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
 To provide your bindings for your user defined filter you must either create a new module 
 or you can add the binding to your default DI module. This process is detailed documented 
-for [Scala](https://www.playframework.com/documentation/2.4.x/ScalaDependencyInjection) and 
-[Java](https://www.playframework.com/documentation/2.4.x/JavaDependencyInjection) users. So 
+for [Scala](https://www.playframework.com/documentation/2.5.x/ScalaDependencyInjection) and 
+[Java](https://www.playframework.com/documentation/2.5.x/JavaDependencyInjection) users. So 
 please refer to this documentation.
 
 ##### Disable default modules

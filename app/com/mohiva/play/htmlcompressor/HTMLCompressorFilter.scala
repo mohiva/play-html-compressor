@@ -12,14 +12,13 @@ package com.mohiva.play.htmlcompressor
 
 import javax.inject.Inject
 
+import akka.stream.Materializer
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
 import com.mohiva.play.compressor.CompressorFilter
-import play.api.http.{ HeaderNames, MimeTypes }
+import play.api.http.MimeTypes
 import play.api.inject.Module
-import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
-import play.api.{ Environment, Configuration, Mode }
-import play.twirl.api.Html
+import play.api.{Configuration, Environment, Mode}
 
 /**
  * Uses Google's HTML Processor to compress the HTML code of a response.
@@ -33,9 +32,10 @@ abstract class HTMLCompressorFilter extends CompressorFilter[HtmlCompressor] {
    * @return True if the result is a HTML result, false otherwise.
    */
   override protected def isCompressible(result: Result): Boolean = {
-    lazy val contentTypeHtml = result.header.headers.get(HeaderNames.CONTENT_TYPE).exists(_.contains(MimeTypes.HTML))
-    lazy val htmlEnumerator = manifest[Enumerator[Html]].runtimeClass.isInstance(result.body)
-    super.isCompressible(result) && contentTypeHtml && htmlEnumerator
+    val contentTypeHtml = result.body.contentType.exists {
+      _.contains(MimeTypes.HTML)
+    }
+    super.isCompressible(result) && contentTypeHtml
   }
 }
 
@@ -45,7 +45,7 @@ abstract class HTMLCompressorFilter extends CompressorFilter[HtmlCompressor] {
  * @param configuration The Play configuration.
  * @param environment The Play environment.
  */
-class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment)
+class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment, val mat: Materializer)
     extends HTMLCompressorFilter {
 
   /**
@@ -84,5 +84,7 @@ trait HTMLCompressorFilterComponents {
   def configuration: Configuration
   def environment: Environment
 
-  lazy val filter: HTMLCompressorFilter = new DefaultHTMLCompressorFilter(configuration, environment)
+  def mat: Materializer
+
+  lazy val filter: HTMLCompressorFilter = new DefaultHTMLCompressorFilter(configuration, environment, mat)
 }

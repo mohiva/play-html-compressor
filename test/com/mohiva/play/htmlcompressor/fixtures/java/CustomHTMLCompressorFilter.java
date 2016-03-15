@@ -10,6 +10,7 @@
  */
 package com.mohiva.play.htmlcompressor.fixtures.java;
 
+import akka.stream.Materializer;
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
 import play.Environment;
@@ -25,11 +26,13 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
     private Configuration configuration;
     private Environment environment;
+    private Materializer mat;
 
     @Inject
-    public CustomHTMLCompressorFilter(Configuration configuration, Environment environment) {
+    public CustomHTMLCompressorFilter(Configuration configuration, Environment environment, Materializer mat) {
         this.configuration = configuration;
         this.environment = environment;
+        this.mat = mat;
     }
 
     @Override
@@ -50,5 +53,10 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
         compressor.setRemoveHttpsProtocol(true);
 
         return compressor;
+    }
+
+    @Override
+    public Materializer mat() {
+        return mat;
     }
 }
