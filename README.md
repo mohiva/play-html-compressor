@@ -26,7 +26,7 @@ following two examples shows how to define the filters with the default and the
 user-defined configurations.
 
 To provide the filters for your application you must define it as described in the Play 
-Documentation ([Scala](https://www.playframework.com/documentation/2.4.x/ScalaHttpFilters#Using-filters), [Java](https://www.playframework.com/documentation/2.4.x/JavaHttpFilters#Using-filters)).
+Documentation ([Scala](https://www.playframework.com/documentation/2.5.x/ScalaHttpFilters#Using-filters), [Java](https://www.playframework.com/documentation/2.5.x/JavaHttpFilters#Using-filters)).
 
 ### Provide filters
 
