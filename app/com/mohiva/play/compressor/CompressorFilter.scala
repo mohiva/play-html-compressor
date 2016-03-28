@@ -95,7 +95,7 @@ abstract class CompressorFilter[C <: Compressor] extends Filter {
             val compressed = compress(bytes)
             val length = compressed.length
             Result(
-              result.header.copy(headers = result.header.headers ++ Map(CONTENT_LENGTH -> length.toString)),
+              result.header.copy(headers = result.header.headers),
               HttpEntity.Streamed(Source.single(ByteString(compressed)), Some(length.toLong), result.body.contentType)
             )
           }
