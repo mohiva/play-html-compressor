@@ -30,6 +30,8 @@ public class DefaultFilter implements HttpFilters {
 
     @Override
     public EssentialFilter[] filters() {
-        return new EssentialFilter[] {htmlCompressorFilter.asJava()};
+        return new EssentialFilter[] {
+            htmlCompressorFilter.asJava()
+        };
     }
 }
