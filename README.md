@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
 
 ### History
 
-* For Play Framework 2.5 use version 0.6.0
+* For Play Framework 2.5 use version 0.6.1
 * For Play Framework 2.4 use version 0.5.0
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
@@ -57,7 +57,7 @@ class Filters @Inject() (
 ```java
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
 import com.mohiva.play.xmlcompressor.XMLCompressorFilter;
-import play.api.mvc.EssentialFilter;
+import play.mvc.EssentialFilter;
 import play.http.HttpFilters;
 
 import javax.inject.Inject;
@@ -79,8 +79,8 @@ public class DefaultFilter implements HttpFilters {
     @Override
     public EssentialFilter[] filters() {
         return new EssentialFilter[] {
-            htmlCompressorFilter, 
-            xmlCompressorFilter
+            htmlCompressorFilter.asJava(), 
+            xmlCompressorFilter.asJava()
         };
     }
 }
