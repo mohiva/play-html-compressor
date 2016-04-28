@@ -80,7 +80,8 @@ scalacOptions ++= Seq(
 )
 
 scalacOptions in Test ~= { (options: Seq[String]) =>
-  options filterNot ( _ == "-Ywarn-dead-code" )  // Allow dead code in tests (to support using mockito).
+  // Allow dead code in tests (to support using mockito).
+  options filterNot ( _ == "-Ywarn-dead-code" )  
 }
 
 //*******************************
