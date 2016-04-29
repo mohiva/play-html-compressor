@@ -69,5 +69,5 @@ trait XMLCompressorFilterComponents {
   def configuration: Configuration
   def mat: Materializer
 
-  lazy val filter: XMLCompressorFilter = new DefaultXMLCompressorFilter(configuration, mat)
+  lazy val xmlCompressorFilter: XMLCompressorFilter = new DefaultXMLCompressorFilter(configuration, mat)
 }

@@ -86,5 +86,5 @@ trait HTMLCompressorFilterComponents {
 
   def mat: Materializer
 
-  lazy val filter: HTMLCompressorFilter = new DefaultHTMLCompressorFilter(configuration, environment, mat)
+  lazy val htmlCompressorFilter: HTMLCompressorFilter = new DefaultHTMLCompressorFilter(configuration, environment, mat)
 }
