@@ -6,13 +6,13 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.6.0"
+  "com.mohiva" %% "play-html-compressor" % "0.6.2"
 )
 ```
 
 ### History
 
-* For Play Framework 2.5 use version 0.6.1
+* For Play Framework 2.5 use version 0.6.2
 * For Play Framework 2.4 use version 0.5.0
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
@@ -25,7 +25,7 @@ configurations, but it can also be used with user-defined configurations. The
 following two examples shows how to define the filters with the default and the
 user-defined configurations.
 
-To provide the filters for your application you must define it as described in the Play 
+To provide the filters for your application you must define it as described in the Play
 Documentation ([Scala](https://www.playframework.com/documentation/2.5.x/ScalaHttpFilters#Using-filters), [Java](https://www.playframework.com/documentation/2.5.x/JavaHttpFilters#Using-filters)).
 
 ### Provide filters
@@ -41,12 +41,12 @@ import play.api.http.HttpFilters
 import play.api.mvc.EssentialFilter
 
 class Filters @Inject() (
-  htmlCompressorFilter: HTMLCompressorFilter, 
-  xmlCompressorFilter: XMLCompressorFilter) 
+  htmlCompressorFilter: HTMLCompressorFilter,
+  xmlCompressorFilter: XMLCompressorFilter)
   extends HttpFilters {
-  
+
   override def filters: Seq[EssentialFilter] = Seq(
-    htmlCompressorFilter, 
+    htmlCompressorFilter,
     xmlCompressorFilter
   )
 }
@@ -69,9 +69,9 @@ public class DefaultFilter implements HttpFilters {
 
     @Inject
     public DefaultFilter(
-        HTMLCompressorFilter htmlCompressorFilter, 
+        HTMLCompressorFilter htmlCompressorFilter,
         XMLCompressorFilter xmlCompressorFilter) {
-        
+
         this.htmlCompressorFilter = htmlCompressorFilter;
         this.xmlCompressorFilter = xmlCompressorFilter;
     }
@@ -79,7 +79,7 @@ public class DefaultFilter implements HttpFilters {
     @Override
     public EssentialFilter[] filters() {
         return new EssentialFilter[] {
-            htmlCompressorFilter.asJava(), 
+            htmlCompressorFilter.asJava(),
             xmlCompressorFilter.asJava()
         };
     }
@@ -89,8 +89,8 @@ public class DefaultFilter implements HttpFilters {
 
 ### Default filter
 
-For the default filters we provide DI modules which will be automatically enabled if you 
-pull in the dependency. You must only provide your instance of `HttpFilters` as described 
+For the default filters we provide DI modules which will be automatically enabled if you
+pull in the dependency. You must only provide your instance of `HttpFilters` as described
 above.
 
 ### User-defined filter
@@ -152,7 +152,7 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
     @Inject
     public CustomHTMLCompressorFilter(
         Configuration configuration, Environment environment, Materializer mat) {
-        
+
         this.configuration = configuration;
         this.environment = environment;
         this.mat = mat;
@@ -177,22 +177,22 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
         return compressor;
     }
-    
+
     @Override
     public Materializer mat() {
         return mat;
     }
-        
+
 }
 
 ```
 
 #### Provide bindings
 
-To provide your bindings for your user defined filter you must either create a new module 
-or you can add the binding to your default DI module. This process is detailed documented 
-for [Scala](https://www.playframework.com/documentation/2.5.x/ScalaDependencyInjection) and 
-[Java](https://www.playframework.com/documentation/2.5.x/JavaDependencyInjection) users. So 
+To provide your bindings for your user defined filter you must either create a new module
+or you can add the binding to your default DI module. This process is detailed documented
+for [Scala](https://www.playframework.com/documentation/2.5.x/ScalaDependencyInjection) and
+[Java](https://www.playframework.com/documentation/2.5.x/JavaDependencyInjection) users. So
 please refer to this documentation.
 
 ##### Disable default modules

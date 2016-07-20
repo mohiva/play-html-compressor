@@ -17,7 +17,7 @@ import com.googlecode.htmlcompressor.compressor.XmlCompressor
 import com.mohiva.play.compressor.CompressorFilter
 import play.api.inject.Module
 import play.api.mvc._
-import play.api.{Configuration, Environment}
+import play.api.{ Configuration, Environment }
 
 /**
  * Uses Google's XML Processor to compress the XML code of a response.

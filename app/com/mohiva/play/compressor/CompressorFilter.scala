@@ -16,7 +16,7 @@ import akka.util.ByteString
 import com.googlecode.htmlcompressor.compressor.Compressor
 import play.api.Configuration
 import play.api.http.HeaderNames._
-import play.api.http.{HttpEntity, HttpProtocol}
+import play.api.http.{ HttpEntity, HttpProtocol }
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,8 +47,8 @@ abstract class CompressorFilter[C <: Compressor] extends Filter {
   lazy val charset = configuration.getString("default.charset").getOrElse("utf-8")
 
   /**
-    * Materializer for the Filter.
-    */
+   * Materializer for the Filter.
+   */
   override implicit val mat: Materializer
 
   /**

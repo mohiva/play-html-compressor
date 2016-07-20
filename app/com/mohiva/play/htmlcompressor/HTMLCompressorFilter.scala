@@ -18,7 +18,7 @@ import com.mohiva.play.compressor.CompressorFilter
 import play.api.http.MimeTypes
 import play.api.inject.Module
 import play.api.mvc._
-import play.api.{Configuration, Environment, Mode}
+import play.api.{ Configuration, Environment, Mode }
 
 /**
  * Uses Google's HTML Processor to compress the HTML code of a response.
@@ -46,7 +46,7 @@ abstract class HTMLCompressorFilter extends CompressorFilter[HtmlCompressor] {
  * @param environment The Play environment.
  */
 class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment, val mat: Materializer)
-    extends HTMLCompressorFilter {
+  extends HTMLCompressorFilter {
 
   /**
    * The compressor instance.
