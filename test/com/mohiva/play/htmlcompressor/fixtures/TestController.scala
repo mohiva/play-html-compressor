@@ -13,7 +13,7 @@ package com.mohiva.play.htmlcompressor.fixtures
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import play.api.http.HttpChunk.Chunk
-import play.api.http.{MimeTypes, HttpEntity, DefaultHttpErrorHandler}
+import play.api.http.{ MimeTypes, HttpEntity, DefaultHttpErrorHandler }
 import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
 import play.twirl.api.Html

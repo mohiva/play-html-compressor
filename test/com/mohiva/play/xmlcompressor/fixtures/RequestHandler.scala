@@ -24,7 +24,7 @@ class RequestHandler @Inject() (
   errorHandler: HttpErrorHandler,
   configuration: HttpConfiguration,
   filters: HttpFilters)
-    extends DefaultHttpRequestHandler(router, errorHandler, configuration, filters) {
+  extends DefaultHttpRequestHandler(router, errorHandler, configuration, filters) {
 
   /**
    * Specify custom routes for this test.

@@ -24,7 +24,7 @@ import play.filters.gzip.GzipFilter
  * A custom HTML compressor filter.
  */
 class CustomHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment, val mat: Materializer)
-    extends HTMLCompressorFilter {
+  extends HTMLCompressorFilter {
 
   override val compressor: HtmlCompressor = {
     val c = new HtmlCompressor()

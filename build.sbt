@@ -2,13 +2,15 @@ import com.typesafe.sbt.SbtScalariform._
 import play.sbt.PlayImport._
 import xerial.sbt.Sonatype._
 
+import scalariform.formatter.preferences._
+
 //*******************************
 // Play settings
 //*******************************
 
 name := "play-html-compressor"
 
-version := "0.6.1"
+version := "0.6.2"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
@@ -18,9 +20,6 @@ libraryDependencies ++= Seq(
   javaCore % Test,
   filters % Test
 )
-
-// org.scalaz.stream#scalaz-stream_2.11 is not in not in maven central or any other repositories
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 lazy val root = (project in file(".")).enablePlugins(play.sbt.Play)
 
@@ -79,13 +78,16 @@ scalacOptions ++= Seq(
   "-Ywarn-numeric-widen" // Warn when numerics are widened.
 )
 
-scalacOptions in Test ~= { (options: Seq[String]) =>
-  // Allow dead code in tests (to support using mockito).
-  options filterNot ( _ == "-Ywarn-dead-code" )  
-}
+// Allow dead code in tests (to support using mockito).
+scalacOptions in Test ~= { (options: Seq[String]) => options filterNot ( _ == "-Ywarn-dead-code" ) }
 
 //*******************************
 // Scalariform settings
 //*******************************
 
 defaultScalariformSettings
+
+ScalariformKeys.preferences := ScalariformKeys.preferences.value
+  .setPreference(FormatXml, false)
+  .setPreference(DoubleIndentClassDeclaration, false)
+  .setPreference(DanglingCloseParenthesis, Preserve)
