@@ -87,6 +87,35 @@ public class DefaultFilter implements HttpFilters {
 
 ```
 
+### Customize filter behaviour
+
+You have the possibility to customize filter behaviour without using class inheritance. For
+that, you could adding the following keys on your `application.conf` file :
+
+```
+play.filters {
+
+  # Mohiva Compressor
+  # ~~~~~
+  # https://github.com/mohiva/play-html-compressor
+  compressor {
+    html {
+      preserveLineBreaks = true
+      removeComments = true
+      removeIntertagSpaces = false
+      removeHttpProtocol = true
+      removeHttpsProtocol = true
+    }
+
+    xml {
+      removeComments = true
+      removeIntertagSpaces = false
+    }
+  }
+}
+```
+
+
 ### Default filter
 
 For the default filters we provide DI modules which will be automatically enabled if you

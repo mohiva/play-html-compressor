@@ -43,7 +43,7 @@ abstract class HTMLCompressorFilter extends CompressorFilter[HtmlCompressor] {
  * The default implementation of the [[HTMLCompressorFilter]].
  *
  * @param configuration The Play configuration.
- * @param environment The Play environment.
+ * @param environment   The Play environment.
  */
 class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, environment: Environment, val mat: Materializer)
   extends HTMLCompressorFilter {
@@ -53,14 +53,31 @@ class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, e
    */
   override val compressor: HtmlCompressor = {
     val c = new HtmlCompressor()
-    if (environment.mode == Mode.Dev) {
-      c.setPreserveLineBreaks(true)
-    }
-
-    c.setRemoveComments(true)
-    c.setRemoveIntertagSpaces(false)
-    c.setRemoveHttpProtocol(true)
-    c.setRemoveHttpsProtocol(true)
+    c.setPreserveLineBreaks(
+      configuration
+        .getBoolean("play.filters.compressor.html.preserveLineBreaks")
+        .getOrElse(environment.mode == Mode.Dev)
+    )
+    c.setRemoveComments(
+      configuration
+        .getBoolean("play.filters.compressor.html.removeComments")
+        .getOrElse(true)
+    )
+    c.setRemoveIntertagSpaces(
+      configuration
+        .getBoolean("play.filters.compressor.html.removeIntertagSpaces")
+        .getOrElse(false)
+    )
+    c.setRemoveHttpProtocol(
+      configuration
+        .getBoolean("play.filters.compressor.html.removeHttpProtocol")
+        .getOrElse(true)
+    )
+    c.setRemoveHttpsProtocol(
+      configuration
+        .getBoolean("play.filters.compressor.html.removeHttpsProtocol")
+        .getOrElse(true)
+    )
     c
   }
 }
@@ -82,6 +99,7 @@ class HTMLCompressorFilterModule extends Module {
 trait HTMLCompressorFilterComponents {
 
   def configuration: Configuration
+
   def environment: Environment
 
   def mat: Materializer

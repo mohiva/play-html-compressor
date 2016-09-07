@@ -47,7 +47,20 @@ class DefaultXMLCompressorFilter @Inject() (val configuration: Configuration, va
   /**
    * The compressor instance.
    */
-  override val compressor: XmlCompressor = new XmlCompressor()
+  override val compressor: XmlCompressor = {
+    val c = new XmlCompressor()
+    c.setRemoveComments(
+      configuration
+        .getBoolean("play.filters.compressor.xml.removeComments")
+        .getOrElse(true)
+    )
+    c.setRemoveIntertagSpaces(
+      configuration
+        .getBoolean("play.filters.compressor.xml.removeIntertagSpaces")
+        .getOrElse(true)
+    )
+    c
+  }
 }
 
 /**
@@ -67,6 +80,7 @@ class XMLCompressorFilterModule extends Module {
 trait XMLCompressorFilterComponents {
 
   def configuration: Configuration
+
   def mat: Materializer
 
   lazy val xmlCompressorFilter: XMLCompressorFilter = new DefaultXMLCompressorFilter(configuration, mat)
