@@ -57,7 +57,7 @@ class DefaultXMLCompressorFilter @Inject() (val configuration: Configuration, va
     c.setRemoveIntertagSpaces(
       configuration
         .getBoolean("play.filters.compressor.xml.removeIntertagSpaces")
-        .getOrElse(false)
+        .getOrElse(true)
     )
     c
   }
