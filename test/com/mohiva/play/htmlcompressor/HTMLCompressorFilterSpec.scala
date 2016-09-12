@@ -10,7 +10,6 @@
  */
 package com.mohiva.play.htmlcompressor
 
-import akka.stream.Materializer
 import akka.util.ByteString
 import com.mohiva.play.compressor.Helper
 import com.mohiva.play.htmlcompressor.fixtures.{ CustomHTMLCompressorFilter, DefaultFilter, RequestHandler, WithGzipFilter }
