@@ -187,12 +187,29 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
 ```
 
+#### Provide bindings
+
+To provide your bindings for your user defined filter you must either create a new module
+or you can add the binding to your default DI module. This process is detailed documented
+for [Scala](https://www.playframework.com/documentation/2.5.x/ScalaDependencyInjection) and
+[Java](https://www.playframework.com/documentation/2.5.x/JavaDependencyInjection) users. So
+please refer to this documentation.
+
+##### Disable default modules
+
+To disable the default modules you must append the modules to the `play.modules.disabled` property in `application.conf`:
+
+```scala
+play.modules.disabled += "com.mohiva.play.htmlcompressor.HTMLCompressorFilterModule"
+play.modules.disabled += "com.mohiva.play.xmlcompressor.XMLCompressorFilterModule"
+```
+
 ### Customize filter behaviour
 
 You have the possibility to customize filter behaviour without using class inheritance. For
 that, you could adding the following keys on your `application.conf` file :
 
-```
+```scala
 play.filters {
 
   # Mohiva Compressor
@@ -213,21 +230,4 @@ play.filters {
     }
   }
 }
-```
-
-#### Provide bindings
-
-To provide your bindings for your user defined filter you must either create a new module
-or you can add the binding to your default DI module. This process is detailed documented
-for [Scala](https://www.playframework.com/documentation/2.5.x/ScalaDependencyInjection) and
-[Java](https://www.playframework.com/documentation/2.5.x/JavaDependencyInjection) users. So
-please refer to this documentation.
-
-##### Disable default modules
-
-To disable the default modules you must append the modules to the `play.modules.disabled` property in `application.conf`:
-
-```scala
-play.modules.disabled += "com.mohiva.play.htmlcompressor.HTMLCompressorFilterModule"
-play.modules.disabled += "com.mohiva.play.xmlcompressor.XMLCompressorFilterModule"
 ```
