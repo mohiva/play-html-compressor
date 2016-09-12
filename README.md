@@ -6,13 +6,13 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.6.2"
+  "com.mohiva" %% "play-html-compressor" % "0.6.3"
 )
 ```
 
 ### History
 
-* For Play Framework 2.5 use version 0.6.2
+* For Play Framework 2.5 use version 0.6.3
 * For Play Framework 2.4 use version 0.5.0
 * For Play Framework 2.3 use version 0.3.1
 * For Play Framework 2.2 use version 0.2.1
@@ -86,35 +86,6 @@ public class DefaultFilter implements HttpFilters {
 }
 
 ```
-
-### Customize filter behaviour
-
-You have the possibility to customize filter behaviour without using class inheritance. For
-that, you could adding the following keys on your `application.conf` file :
-
-```
-play.filters {
-
-  # Mohiva Compressor
-  # ~~~~~
-  # https://github.com/mohiva/play-html-compressor
-  compressor {
-    html {
-      preserveLineBreaks = true
-      removeComments = true
-      removeIntertagSpaces = false
-      removeHttpProtocol = true
-      removeHttpsProtocol = true
-    }
-
-    xml {
-      removeComments = true
-      removeIntertagSpaces = false
-    }
-  }
-}
-```
-
 
 ### Default filter
 
@@ -214,6 +185,34 @@ public class CustomHTMLCompressorFilter extends HTMLCompressorFilter {
 
 }
 
+```
+
+### Customize filter behaviour
+
+You have the possibility to customize filter behaviour without using class inheritance. For
+that, you could adding the following keys on your `application.conf` file :
+
+```
+play.filters {
+
+  # Mohiva Compressor
+  # ~~~~~
+  # https://github.com/mohiva/play-html-compressor
+  compressor {
+    html {
+      preserveLineBreaks = false
+      removeComments = true
+      removeIntertagSpaces = false
+      removeHttpProtocol = true
+      removeHttpsProtocol = true
+    }
+
+    xml {
+      removeComments = true
+      removeIntertagSpaces = true
+    }
+  }
+}
 ```
 
 #### Provide bindings
