@@ -12,14 +12,16 @@ package com.mohiva.play.htmlcompressor.fixtures.java;
 
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
 import play.mvc.EssentialFilter;
-import play.http.HttpFilters;
+import play.http.DefaultHttpFilters;
 
+import java.util.LinkedList;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
  * Provides the default HTML compressor filter.
  */
-public class DefaultFilter implements HttpFilters {
+public class DefaultFilter extends DefaultHttpFilters {
 
     private HTMLCompressorFilter htmlCompressorFilter;
 
@@ -29,9 +31,9 @@ public class DefaultFilter implements HttpFilters {
     }
 
     @Override
-    public EssentialFilter[] filters() {
-        return new EssentialFilter[] {
-            htmlCompressorFilter.asJava()
-        };
+    public List<EssentialFilter> getFilters() {
+        List<EssentialFilter> l = new LinkedList<EssentialFilter>();
+        l.add(htmlCompressorFilter.asJava());
+        return l;
     }
 }

@@ -55,27 +55,27 @@ class DefaultHTMLCompressorFilter @Inject() (val configuration: Configuration, e
     val c = new HtmlCompressor()
     c.setPreserveLineBreaks(
       configuration
-        .getBoolean("play.filters.compressor.html.preserveLineBreaks")
+        .getOptional[Boolean]("play.filters.compressor.html.preserveLineBreaks")
         .getOrElse(environment.mode == Mode.Dev)
     )
     c.setRemoveComments(
       configuration
-        .getBoolean("play.filters.compressor.html.removeComments")
+        .getOptional[Boolean]("play.filters.compressor.html.removeComments")
         .getOrElse(true)
     )
     c.setRemoveIntertagSpaces(
       configuration
-        .getBoolean("play.filters.compressor.html.removeIntertagSpaces")
+        .getOptional[Boolean]("play.filters.compressor.html.removeIntertagSpaces")
         .getOrElse(false)
     )
     c.setRemoveHttpProtocol(
       configuration
-        .getBoolean("play.filters.compressor.html.removeHttpProtocol")
+        .getOptional[Boolean]("play.filters.compressor.html.removeHttpProtocol")
         .getOrElse(true)
     )
     c.setRemoveHttpsProtocol(
       configuration
-        .getBoolean("play.filters.compressor.html.removeHttpsProtocol")
+        .getOptional[Boolean]("play.filters.compressor.html.removeHttpsProtocol")
         .getOrElse(true)
     )
     c

@@ -21,7 +21,9 @@ import com.mohiva.play.xmlcompressor.fixtures.java.WithGzipFilter;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import play.Application;
+import play.Environment;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.Mode;
 import play.mvc.Result;
 
 import java.io.IOException;
@@ -43,7 +45,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressXMLDocument() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/action"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -57,7 +59,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressAsyncXMLDocument() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/asyncAction"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -71,14 +73,14 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressStaticAssets() {
         running(defaultApp(), () -> {
-            InputStream is = defaultApp().resourceAsStream("static.xml");
+            InputStream is = new Environment(Mode.TEST).resourceAsStream("static.xml");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Result result = route(fakeRequest(GET, "/static"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -93,7 +95,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultFilterNotCompressNonXMLPage() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/nonXML"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/nonXML"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("text/plain"));
@@ -107,7 +109,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultFilterNotCompressChunkedXMLPage() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/chunked"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/chunked"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -121,7 +123,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void customFilterCompressXMLPage() {
         running(customApp(), () -> {
-            Result result = route(fakeRequest(GET, "/action"));
+            Result result = route(customApp(), fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -135,7 +137,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void customFilterCompressAsyncXMLPage() {
         running(customApp(), () -> {
-            Result result = route(fakeRequest(GET, "/asyncAction"));
+            Result result = route(customApp(), fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -149,7 +151,7 @@ public class XMLCompressorFilterTest {
     @Test
     public void customFilterNotCompressNonXMLPage() {
         running(customApp(), () -> {
-            Result result = route(fakeRequest(GET, "/nonXML"));
+            Result result = route(customApp(), fakeRequest(GET, "/nonXML"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("text/plain"));
@@ -163,14 +165,14 @@ public class XMLCompressorFilterTest {
     @Test
     public void customFilterCompressStaticAssets() {
         running(customApp(), () -> {
-            InputStream is = customApp().resourceAsStream("static.xml");
+            InputStream is = new Environment(Mode.TEST).resourceAsStream("static.xml");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Result result = route(fakeRequest(GET, "/static"));
+            Result result = route(customApp(), fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -185,8 +187,8 @@ public class XMLCompressorFilterTest {
     @Test
     public void defaultWithGzipFilterXmlCompressesAndThenGzipsResult() {
         running(gzipApp(), () -> {
-            Result original = route(fakeRequest(GET, "/action"));
-            Result gzipped  = route(fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
+            Result original = route(gzipApp(), fakeRequest(GET, "/action"));
+            Result gzipped  = route(gzipApp(), fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
 
             assertThat(gzipped.status()).isEqualTo(OK);
             assertThat(gzipped.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -207,8 +209,8 @@ public class XMLCompressorFilterTest {
     public void defaultWithGzipFilterNotCompressGzippedResult() {
         running(gzipApp(), () -> {
             try {
-                ByteString original = ByteString.fromArray(IOUtils.toByteArray(gzipApp().resourceAsStream("static.xml")));
-                Result result = route(fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
+                ByteString original = ByteString.fromArray(IOUtils.toByteArray(new Environment(Mode.TEST).resourceAsStream("static.xml")));
+                Result result = route(gzipApp(), fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
 
                 assertThat(result.status()).isEqualTo(OK);
                 assertThat(result.contentType()).isEqualTo(Optional.of("application/xml"));
@@ -225,6 +227,7 @@ public class XMLCompressorFilterTest {
      */
     private Application defaultApp() {
         return new GuiceApplicationBuilder()
+            .in(new Environment(Mode.TEST))
             .configure("play.http.filters", DefaultFilter.class.getCanonicalName())
             .configure("play.http.requestHandler", RequestHandler.class.getCanonicalName())
             .build();
@@ -235,6 +238,7 @@ public class XMLCompressorFilterTest {
      */
     private Application customApp() {
         return new GuiceApplicationBuilder()
+            .in(new Environment(Mode.TEST))
             .overrides(bind(XMLCompressorFilter.class).to(CustomXMLCompressorFilter.class))
             .configure("play.http.filters", DefaultFilter.class.getCanonicalName())
             .configure("play.http.requestHandler", RequestHandler.class.getCanonicalName())
@@ -246,6 +250,7 @@ public class XMLCompressorFilterTest {
      */
     private Application gzipApp() {
         return new GuiceApplicationBuilder()
+            .in(new Environment(Mode.TEST))
             .configure("play.http.filters", WithGzipFilter.class.getCanonicalName())
             .configure("play.http.requestHandler", RequestHandler.class.getCanonicalName())
             .build();

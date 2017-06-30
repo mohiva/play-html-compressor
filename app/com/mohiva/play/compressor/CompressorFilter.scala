@@ -44,7 +44,7 @@ abstract class CompressorFilter[C <: Compressor] extends Filter {
   /**
    * The charset used by Play.
    */
-  lazy val charset = configuration.getString("default.charset").getOrElse("utf-8")
+  lazy val charset = configuration.getOptional[String]("default.charset").getOrElse("utf-8")
 
   /**
    * Materializer for the Filter.

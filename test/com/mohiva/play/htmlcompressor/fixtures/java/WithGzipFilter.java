@@ -13,14 +13,16 @@ package com.mohiva.play.htmlcompressor.fixtures.java;
 import com.mohiva.play.htmlcompressor.HTMLCompressorFilter;
 import play.mvc.EssentialFilter;
 import play.filters.gzip.GzipFilter;
-import play.http.HttpFilters;
+import play.http.DefaultHttpFilters;
 
+import java.util.LinkedList;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
  * Provides the default HTML compressor filter with a Gzip filter.
  */
-public class WithGzipFilter implements HttpFilters {
+public class WithGzipFilter extends DefaultHttpFilters {
 
     private HTMLCompressorFilter htmlCompressor;
     private GzipFilter gzip;
@@ -32,7 +34,10 @@ public class WithGzipFilter implements HttpFilters {
     }
 
     @Override
-    public EssentialFilter[] filters() {
-        return new EssentialFilter[] {gzip.asJava(), htmlCompressor.asJava()};
+    public List<EssentialFilter> getFilters() {
+        List<EssentialFilter> l = new LinkedList<EssentialFilter>();
+        l.add(gzip.asJava());
+        l.add(htmlCompressor.asJava());
+        return l;
     }
 }

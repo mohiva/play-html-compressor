@@ -12,8 +12,9 @@ package com.mohiva.play.xmlcompressor.fixtures
 
 import javax.inject.Inject
 
+import controllers.AssetsMetadata
 import play.api.http.{ DefaultHttpRequestHandler, HttpConfiguration, HttpErrorHandler, HttpFilters }
-import play.api.mvc.{ Handler, RequestHeader }
+import play.api.mvc.{ ControllerComponents, Handler, RequestHeader }
 import play.api.routing.Router
 
 /**
@@ -23,7 +24,9 @@ class RequestHandler @Inject() (
   router: Router,
   errorHandler: HttpErrorHandler,
   configuration: HttpConfiguration,
-  filters: HttpFilters)
+  filters: HttpFilters,
+  components: ControllerComponents,
+  meta: AssetsMetadata)
   extends DefaultHttpRequestHandler(router, errorHandler, configuration, filters) {
 
   /**
@@ -33,7 +36,7 @@ class RequestHandler @Inject() (
    * @return An action to handle this request.
    */
   override def routeRequest(request: RequestHeader): Option[Handler] = {
-    lazy val controller = new TestController()
+    lazy val controller = new TestController(components, meta)
     (request.method, request.path) match {
       case ("GET", "/action") => Some(controller.action)
       case ("GET", "/asyncAction") => Some(controller.asyncAction)

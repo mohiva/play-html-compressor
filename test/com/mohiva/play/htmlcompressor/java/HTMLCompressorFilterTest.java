@@ -22,7 +22,9 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import play.Application;
 import play.api.inject.guice.GuiceInjector;
+import play.Environment;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.Mode;
 import play.mvc.Result;
 
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class HTMLCompressorFilterTest {
     public void defaultFilterCompressHTMLPage() {
 
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/action"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/html");
@@ -59,7 +61,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressAsyncHTMLPage() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/asyncAction"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/html");
@@ -73,7 +75,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void defaultFilterNotCompressNonHTMLPage() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/nonHTML"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/nonHTML"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/plain");
@@ -87,14 +89,14 @@ public class HTMLCompressorFilterTest {
     @Test
     public void defaultFilterCompressStaticAssets() {
         running(defaultApp(), () -> {
-            InputStream is = defaultApp().resourceAsStream("static.html");
+            InputStream is = new Environment(Mode.TEST).resourceAsStream("static.html");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Result result = route(fakeRequest(GET, "/static"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().orElse("")).isEqualTo("text/html");
@@ -110,7 +112,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void defaultFilterNotCompressChunkedResult() {
         running(defaultApp(), () -> {
-            Result result = route(fakeRequest(GET, "/chunked"));
+            Result result = route(defaultApp(), fakeRequest(GET, "/chunked"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/html");
@@ -124,7 +126,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void customFilterCompressHTMLPage() {
         running(customApp(), () -> {
-            Result result = route(fakeRequest(GET, "/action"));
+            Result result = route(customApp(), fakeRequest(GET, "/action"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/html");
@@ -138,7 +140,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void customFilterCompressAsyncHTMLPage() {
         running(customApp(), () -> {
-            Result result = route(fakeRequest(GET, "/asyncAction"));
+            Result result = route(customApp(), fakeRequest(GET, "/asyncAction"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/html");
@@ -152,7 +154,7 @@ public class HTMLCompressorFilterTest {
     @Test
     public void customFilterNotCompressNonHTMLPage() {
         running(customApp(), () -> {
-            Result result = route(fakeRequest(GET, "/nonHTML"));
+            Result result = route(customApp(), fakeRequest(GET, "/nonHTML"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().get()).isEqualTo("text/plain");
@@ -166,14 +168,14 @@ public class HTMLCompressorFilterTest {
     @Test
     public void customFilterCompressStaticAssets() {
         running(customApp(), () -> {
-            InputStream is = customApp().resourceAsStream("static.html");
+            InputStream is = new Environment(Mode.TEST).resourceAsStream("static.html");
             String file = "";
             try {
                 file = IOUtils.toString(is, "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Result result = route(fakeRequest(GET, "/static"));
+            Result result = route(customApp(), fakeRequest(GET, "/static"));
 
             assertThat(result.status()).isEqualTo(OK);
             assertThat(result.contentType().orElse("")).isEqualTo("text/html");
@@ -188,8 +190,8 @@ public class HTMLCompressorFilterTest {
     @Test
     public void defaultWithGzipFilterHtmlCompressesAndThenGzipsResult() {
         running(gzipApp(), () -> {
-            Result original = route(fakeRequest(GET, "/action"));
-            Result gzipped  = route(fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
+            Result original = route(gzipApp(), fakeRequest(GET, "/action"));
+            Result gzipped  = route(gzipApp(), fakeRequest(GET, "/action").header(ACCEPT_ENCODING, "gzip"));
 
             assertThat(gzipped.status()).isEqualTo(OK);
             assertThat(gzipped.contentType().get()).isEqualTo("text/html");
@@ -210,8 +212,8 @@ public class HTMLCompressorFilterTest {
     public void defaultWithGzipFilterNotCompressGzippedResult() {
         running(gzipApp(), () -> {
             try {
-                ByteString original = ByteString.fromArray(IOUtils.toByteArray(gzipApp().resourceAsStream("static.html")));
-                Result result = route(fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
+                ByteString original = ByteString.fromArray(IOUtils.toByteArray(new Environment(Mode.TEST).resourceAsStream("static.html")));
+                Result result = route(gzipApp(), fakeRequest(GET, "/gzipped").header(ACCEPT_ENCODING, "gzip"));
 
                 assertThat(result.status()).isEqualTo(OK);
                 assertThat(result.contentType().get()).isEqualTo("text/html");
@@ -229,6 +231,7 @@ public class HTMLCompressorFilterTest {
      */
     private Application defaultApp() {
         return new GuiceApplicationBuilder()
+            .in(new Environment(Mode.TEST))
             .configure("play.http.filters", DefaultFilter.class.getCanonicalName())
             .configure("play.http.requestHandler", RequestHandler.class.getCanonicalName())
             .build();
@@ -239,6 +242,7 @@ public class HTMLCompressorFilterTest {
      */
     private Application customApp() {
         return new GuiceApplicationBuilder()
+            .in(new Environment(Mode.TEST))
             .overrides(bind(HTMLCompressorFilter.class).to(CustomHTMLCompressorFilter.class))
             .configure("play.http.filters", DefaultFilter.class.getCanonicalName())
             .configure("play.http.requestHandler", RequestHandler.class.getCanonicalName())
@@ -250,6 +254,7 @@ public class HTMLCompressorFilterTest {
      */
     private Application gzipApp() {
         return new GuiceApplicationBuilder()
+            .in(new Environment(Mode.TEST))
             .configure("play.http.filters", WithGzipFilter.class.getCanonicalName())
             .configure("play.http.requestHandler", RequestHandler.class.getCanonicalName())
             .build();

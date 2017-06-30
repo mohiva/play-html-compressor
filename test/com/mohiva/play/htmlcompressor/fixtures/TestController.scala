@@ -12,19 +12,16 @@ package com.mohiva.play.htmlcompressor.fixtures
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import play.api.http.HttpChunk.Chunk
-import play.api.http.{ MimeTypes, HttpEntity, DefaultHttpErrorHandler }
-import play.api.libs.iteratee.Enumerator
+import play.api.http.{ DefaultHttpErrorHandler }
 import play.api.mvc._
 import play.twirl.api.Html
 import scala.concurrent.Future
-import controllers.AssetsBuilder
-import scala.concurrent.ExecutionContext.Implicits.global
+import controllers.{ AssetsBuilder, AssetsMetadata }
 
 /**
  * Test controller.
  */
-class TestController extends AssetsBuilder(DefaultHttpErrorHandler) {
+class TestController(components: ControllerComponents, meta: AssetsMetadata) extends AbstractController(components) {
 
   /**
    * The template to compress.
@@ -67,7 +64,9 @@ class TestController extends AssetsBuilder(DefaultHttpErrorHandler) {
   /**
    * Loads a static asset.
    */
-  def staticAsset = at("/", "static.html")
+
+  val assets = new AssetsBuilder(DefaultHttpErrorHandler, meta)
+  def staticAsset = assets.at("/", "static.html")
 
   /**
    * Action with chunked transfer encoding.
