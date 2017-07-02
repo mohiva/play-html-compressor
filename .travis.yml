@@ -1,6 +1,7 @@
 language: scala
 scala:
-  - 2.11.1
+  - 2.12.2
+  - 2.11.11
 jdk:
   - oraclejdk8
 notifications:
