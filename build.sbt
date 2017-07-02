@@ -64,7 +64,7 @@ pomExtra := pom
 
 scalaVersion := "2.12.2"
 
-crossScalaVersions := Seq("2.11.11")
+crossScalaVersions := Seq("2.12.2", "2.11.11")
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
