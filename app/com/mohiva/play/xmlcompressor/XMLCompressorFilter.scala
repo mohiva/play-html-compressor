@@ -51,12 +51,12 @@ class DefaultXMLCompressorFilter @Inject() (val configuration: Configuration, va
     val c = new XmlCompressor()
     c.setRemoveComments(
       configuration
-        .getBoolean("play.filters.compressor.xml.removeComments")
+        .getOptional[Boolean]("play.filters.compressor.xml.removeComments")
         .getOrElse(true)
     )
     c.setRemoveIntertagSpaces(
       configuration
-        .getBoolean("play.filters.compressor.xml.removeIntertagSpaces")
+        .getOptional[Boolean]("play.filters.compressor.xml.removeIntertagSpaces")
         .getOrElse(true)
     )
     c

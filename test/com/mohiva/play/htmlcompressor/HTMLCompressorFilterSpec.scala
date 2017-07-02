@@ -16,6 +16,7 @@ import com.mohiva.play.htmlcompressor.fixtures.{ CustomHTMLCompressorFilter, Def
 import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
 import org.specs2.specification.Scope
+import play.api.Environment
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
@@ -25,6 +26,7 @@ import play.api.test._
  * Test case for the [[com.mohiva.play.htmlcompressor.HTMLCompressorFilter]] class.
  */
 class HTMLCompressorFilterSpec extends Specification {
+  val environment = Environment.simple()
 
   "The default filter" should {
     "compress an HTML page" in new Context {
@@ -59,7 +61,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "compress static assets" in new Context {
       new WithApplication(defaultApp) {
-        val file = scala.io.Source.fromInputStream(app.resourceAsStream("static.html").get).mkString
+        val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.html").get).mkString
         val Some(result) = route(defaultApp, FakeRequest(GET, "/static"))
 
         status(result) must equalTo(OK)
@@ -112,7 +114,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "compress static assets" in new Context {
       new WithApplication(customApp) {
-        val file = scala.io.Source.fromInputStream(app.resourceAsStream("static.html").get).mkString
+        val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.html").get).mkString
         val Some(result) = route(customApp, FakeRequest(GET, "/static"))
 
         status(result) must equalTo(OK)
@@ -143,7 +145,7 @@ class HTMLCompressorFilterSpec extends Specification {
         // then Assets controller responds with static.html.gz
         // we don't want to further pass this through HTML Compressor
 
-        val original = ByteString(IOUtils.toByteArray(app.resourceAsStream("static.html").get))
+        val original = ByteString(IOUtils.toByteArray(environment.resourceAsStream("static.html").get))
         val Some(result) = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
 
         status(result) must beEqualTo(OK)

@@ -16,7 +16,7 @@ import com.mohiva.play.xmlcompressor.fixtures.{ CustomXMLCompressorFilter, Defau
 import org.apache.commons.io.IOUtils
 import org.specs2.mutable._
 import org.specs2.specification.Scope
-import play.api.Play
+import play.api.Environment
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
@@ -26,6 +26,7 @@ import play.api.test._
  * Test case for the [[com.mohiva.play.xmlcompressor.XMLCompressorFilter]] class.
  */
 class XMLCompressorFilterSpec extends Specification {
+  val environment = Environment.simple()
 
   "The default filter" should {
     "compress an XML document" in new Context {
@@ -70,7 +71,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "compress static XML assets" in new Context {
       new WithApplication(defaultApp) {
-        val file = scala.io.Source.fromInputStream(gzipApp.resourceAsStream("static.xml").get).mkString
+        val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.xml").get).mkString
         val Some(result) = route(gzipApp, FakeRequest(GET, "/static"))
 
         status(result) must equalTo(OK)
@@ -114,7 +115,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "compress static XML assets" in new Context {
       new WithApplication(customApp) {
-        val file = scala.io.Source.fromInputStream(gzipApp.resourceAsStream("static.xml").get).mkString
+        val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.xml").get).mkString
         val Some(result) = route(gzipApp, FakeRequest(GET, "/static"))
 
         status(result) must equalTo(OK)
@@ -145,7 +146,7 @@ class XMLCompressorFilterSpec extends Specification {
         // then Assets controller responds with static.xml.gz
         // we don't want to further pass this through XML Compressor
 
-        val original = ByteString(IOUtils.toByteArray(gzipApp.resourceAsStream("static.xml").get))
+        val original = ByteString(IOUtils.toByteArray(environment.resourceAsStream("static.xml").get))
         val Some(result) = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
 
         status(result) must beEqualTo(OK)
@@ -182,6 +183,7 @@ class XMLCompressorFilterSpec extends Specification {
      * An app with the gzip filter in place.
      */
     val gzipApp = new GuiceApplicationBuilder()
+      .in(Environment.simple())
       .configure("play.http.filters" -> classOf[WithGzipFilter].getCanonicalName)
       .configure("play.http.requestHandler" -> classOf[RequestHandler].getCanonicalName)
       .build()
