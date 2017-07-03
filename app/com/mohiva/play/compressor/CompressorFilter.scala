@@ -88,31 +88,27 @@ abstract class CompressorFilter[C <: Compressor] extends Filter {
 
     if (isCompressible(result)) {
       result.body match {
-
         case body0: HttpEntity.Strict =>
-          val result2 = result.copy(
-            body = body0.copy(
-              data = ByteString(compress(body0.data))
+          Future.successful(
+            result.copy(
+              body = body0.copy(
+                data = ByteString(compress(body0.data))
+              )
             )
           )
-          Future.successful(result2)
-
         case body0: HttpEntity.Streamed =>
           for {
-            bytes <- body0.data
-              .toMat(Sink.fold(ByteString())(_ ++ _))(Keep.right).run()
+            bytes <- body0.data.toMat(Sink.fold(ByteString())(_ ++ _))(Keep.right).run()
           } yield {
             val compressed = compress(bytes)
             val length = compressed.length
             result.copy(
-              //header = result.header.copy(headers = result.header.headers),
               body = body0.copy(
                 data = Source.single(ByteString(compressed)),
                 contentLength = Some(length.toLong)
               )
             )
           }
-
         case _ =>
           Future.successful(result)
       }
