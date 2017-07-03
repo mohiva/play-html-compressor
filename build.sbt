@@ -10,7 +10,7 @@ import scalariform.formatter.preferences._
 
 name := "play-html-compressor"
 
-version := "0.7.0"
+version := "0.7.1"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
