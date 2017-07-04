@@ -10,12 +10,11 @@ import scalariform.formatter.preferences._
 
 name := "play-html-compressor"
 
-version := "0.7.0"
+version := "0.7.1"
 
 libraryDependencies ++= Seq(
   "com.googlecode.htmlcompressor" % "htmlcompressor" % "1.5.2",
   "rhino" % "js" % "1.7R2",
-  "com.typesafe.play" %% "play-iteratees" % "2.6.1",
   "org.easytesting" % "fest-assert" % "1.4" % Test,
   specs2 % Test,
   javaCore % Test,
