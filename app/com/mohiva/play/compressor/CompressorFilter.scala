@@ -83,27 +83,22 @@ abstract class CompressorFilter[C <: Compressor] extends Filter {
    * @return The compressed result.
    */
   private def compressResult(result: Result): Future[Result] = {
-
     def compress(data: ByteString) = compressor.compress(data.decodeString(charset).trim).getBytes(charset)
 
     if (isCompressible(result)) {
       result.body match {
-        case body0: HttpEntity.Strict =>
+        case body: HttpEntity.Strict =>
           Future.successful(
-            result.copy(
-              body = body0.copy(
-                data = ByteString(compress(body0.data))
-              )
-            )
+            result.copy(body = body.copy(ByteString(compress(body.data))))
           )
-        case body0: HttpEntity.Streamed =>
+        case body: HttpEntity.Streamed =>
           for {
-            bytes <- body0.data.toMat(Sink.fold(ByteString())(_ ++ _))(Keep.right).run()
+            bytes <- body.data.toMat(Sink.fold(ByteString())(_ ++ _))(Keep.right).run()
           } yield {
             val compressed = compress(bytes)
             val length = compressed.length
             result.copy(
-              body = body0.copy(
+              body = body.copy(
                 data = Source.single(ByteString(compressed)),
                 contentLength = Some(length.toLong)
               )
@@ -116,5 +111,4 @@ abstract class CompressorFilter[C <: Compressor] extends Filter {
       Future.successful(result)
     }
   }
-
 }
