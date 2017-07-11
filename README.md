@@ -6,13 +6,13 @@
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.7.0"
+  "com.mohiva" %% "play-html-compressor" % "0.7.1"
 )
 ```
 
 ### History
 
-* For Play Framework 2.6 use version 0.7.0
+* For Play Framework 2.6 use version 0.7.1
 * For Play Framework 2.5 use version 0.6.3
 * For Play Framework 2.4 use version 0.5.0
 * For Play Framework 2.3 use version 0.3.1
