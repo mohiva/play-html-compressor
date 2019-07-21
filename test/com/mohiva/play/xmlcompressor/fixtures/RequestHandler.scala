@@ -11,11 +11,11 @@
 package com.mohiva.play.xmlcompressor.fixtures
 
 import javax.inject.Inject
-
 import controllers.AssetsMetadata
 import play.api.http.{ DefaultHttpRequestHandler, HttpConfiguration, HttpErrorHandler, HttpFilters }
 import play.api.mvc.{ ControllerComponents, Handler, RequestHeader }
 import play.api.routing.Router
+import play.core.WebCommands
 
 /**
  * Request handler which defines the routes for the tests.
@@ -26,8 +26,10 @@ class RequestHandler @Inject() (
   configuration: HttpConfiguration,
   filters: HttpFilters,
   components: ControllerComponents,
-  meta: AssetsMetadata)
-  extends DefaultHttpRequestHandler(router, errorHandler, configuration, filters) {
+  meta: AssetsMetadata,
+  webCommands: WebCommands
+)
+  extends DefaultHttpRequestHandler(webCommands, None, router, errorHandler, configuration, filters.filters) {
 
   /**
    * Specify custom routes for this test.

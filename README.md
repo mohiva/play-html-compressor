@@ -8,12 +8,13 @@ This project is not maintained anymore. If someone is interessted to maintain a 
 In your project/Build.scala:
 ```scala
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-html-compressor" % "0.7.1"
+  "com.mohiva" %% "play-html-compressor" % "0.8.0"
 )
 ```
 
 ### History
 
+* For Play Framework 2.7 use version 0.8.0
 * For Play Framework 2.6 use version 0.7.1
 * For Play Framework 2.5 use version 0.6.3
 * For Play Framework 2.4 use version 0.5.0
@@ -29,7 +30,7 @@ following two examples shows how to define the filters with the default and the
 user-defined configurations.
 
 To provide the filters for your application you must define it as described in the Play
-Documentation ([Scala](https://www.playframework.com/documentation/2.6.x/ScalaHttpFilters#Using-filters), [Java](https://www.playframework.com/documentation/2.6.x/JavaHttpFilters#Using-filters)).
+Documentation ([Scala](https://www.playframework.com/documentation/2.7.x/ScalaHttpFilters#Using-filters), [Java](https://www.playframework.com/documentation/2.7.x/JavaHttpFilters#Using-filters)).
 
 ### Provide filters
 

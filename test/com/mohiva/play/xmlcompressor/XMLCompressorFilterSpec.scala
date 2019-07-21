@@ -31,7 +31,7 @@ class XMLCompressorFilterSpec extends Specification {
   "The default filter" should {
     "compress an XML document" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/action"))
+        val result = route(gzipApp, FakeRequest(GET, "/action")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -41,7 +41,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "compress an async XML document" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/asyncAction"))
+        val result = route(gzipApp, FakeRequest(GET, "/asyncAction")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -51,7 +51,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "not compress a non XML result" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/nonXML"))
+        val result = route(gzipApp, FakeRequest(GET, "/nonXML")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/plain")
@@ -61,7 +61,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "not compress chunked XML result" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/chunked"))
+        val result = route(gzipApp, FakeRequest(GET, "/chunked")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -72,7 +72,7 @@ class XMLCompressorFilterSpec extends Specification {
     "compress static XML assets" in new Context {
       new WithApplication(defaultApp) {
         val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.xml").get).mkString
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/static"))
+        val result = route(gzipApp, FakeRequest(GET, "/static")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -85,7 +85,7 @@ class XMLCompressorFilterSpec extends Specification {
   "The custom filter" should {
     "compress an XML document" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/action"))
+        val result = route(gzipApp, FakeRequest(GET, "/action")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -95,7 +95,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "compress an async XML document" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/asyncAction"))
+        val result = route(gzipApp, FakeRequest(GET, "/asyncAction")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -105,7 +105,7 @@ class XMLCompressorFilterSpec extends Specification {
 
     "not compress a non XML result" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/nonXML"))
+        val result = route(gzipApp, FakeRequest(GET, "/nonXML")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/plain")
@@ -116,7 +116,7 @@ class XMLCompressorFilterSpec extends Specification {
     "compress static XML assets" in new Context {
       new WithApplication(customApp) {
         val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.xml").get).mkString
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/static"))
+        val result = route(gzipApp, FakeRequest(GET, "/static")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("application/xml")
@@ -129,8 +129,8 @@ class XMLCompressorFilterSpec extends Specification {
   "The default filter with Gzip Filter" should {
     "first compress then gzip result" in new Context {
       new WithApplication(gzipApp) {
-        val Some(original) = route(gzipApp, FakeRequest(GET, "/action"))
-        val Some(gzipped) = route(gzipApp, FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip"))
+        val original = route(gzipApp, FakeRequest(GET, "/action")).get
+        val gzipped = route(gzipApp, FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip")).get
 
         status(gzipped) must beEqualTo(OK)
         contentType(gzipped) must beSome("application/xml")
@@ -147,7 +147,7 @@ class XMLCompressorFilterSpec extends Specification {
         // we don't want to further pass this through XML Compressor
 
         val original = ByteString(IOUtils.toByteArray(environment.resourceAsStream("static.xml").get))
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
+        val result = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip")).get
 
         status(result) must beEqualTo(OK)
         contentType(result) must beSome("application/xml")

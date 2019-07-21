@@ -31,7 +31,7 @@ class HTMLCompressorFilterSpec extends Specification {
   "The default filter" should {
     "compress an HTML page" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(defaultApp, FakeRequest(GET, "/action"))
+        val result = route(defaultApp, FakeRequest(GET, "/action")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -41,7 +41,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "compress an async HTML page" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(defaultApp, FakeRequest(GET, "/asyncAction"))
+        val result = route(defaultApp, FakeRequest(GET, "/asyncAction")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -51,7 +51,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "not compress a non HTML result" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(defaultApp, FakeRequest(GET, "/nonHTML"))
+        val result = route(defaultApp, FakeRequest(GET, "/nonHTML")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/plain")
@@ -62,7 +62,7 @@ class HTMLCompressorFilterSpec extends Specification {
     "compress static assets" in new Context {
       new WithApplication(defaultApp) {
         val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.html").get).mkString
-        val Some(result) = route(defaultApp, FakeRequest(GET, "/static"))
+        val result = route(defaultApp, FakeRequest(GET, "/static")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -73,7 +73,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "not compress result with chunked HTML result" in new Context {
       new WithApplication(defaultApp) {
-        val Some(result) = route(defaultApp, FakeRequest(GET, "/chunked"))
+        val result = route(defaultApp, FakeRequest(GET, "/chunked")).get
         status(result) must beEqualTo(OK)
         contentType(result) must beSome("text/html")
         header(CONTENT_LENGTH, result) must beNone
@@ -84,7 +84,7 @@ class HTMLCompressorFilterSpec extends Specification {
   "The custom filter" should {
     "compress an HTML page" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(customApp, FakeRequest(GET, "/action"))
+        val result = route(customApp, FakeRequest(GET, "/action")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -94,7 +94,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "compress an async HTML page" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(customApp, FakeRequest(GET, "/asyncAction"))
+        val result = route(customApp, FakeRequest(GET, "/asyncAction")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -104,7 +104,7 @@ class HTMLCompressorFilterSpec extends Specification {
 
     "not compress a non HTML result" in new Context {
       new WithApplication(customApp) {
-        val Some(result) = route(customApp, FakeRequest(GET, "/nonHTML"))
+        val result = route(customApp, FakeRequest(GET, "/nonHTML")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/plain")
@@ -115,7 +115,7 @@ class HTMLCompressorFilterSpec extends Specification {
     "compress static assets" in new Context {
       new WithApplication(customApp) {
         val file = scala.io.Source.fromInputStream(environment.resourceAsStream("static.html").get).mkString
-        val Some(result) = route(customApp, FakeRequest(GET, "/static"))
+        val result = route(customApp, FakeRequest(GET, "/static")).get
 
         status(result) must equalTo(OK)
         contentType(result) must beSome("text/html")
@@ -128,8 +128,8 @@ class HTMLCompressorFilterSpec extends Specification {
   "The default filter with Gzip Filter" should {
     "first compress then gzip result" in new Context {
       new WithApplication(gzipApp) {
-        val Some(original) = route(gzipApp, FakeRequest(GET, "/action"))
-        val Some(gzipped) = route(gzipApp, FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip"))
+        val original = route(gzipApp, FakeRequest(GET, "/action")).get
+        val gzipped = route(gzipApp, FakeRequest(GET, "/action").withHeaders(ACCEPT_ENCODING -> "gzip")).get
 
         status(gzipped) must beEqualTo(OK)
         contentType(gzipped) must beSome("text/html")
@@ -146,7 +146,7 @@ class HTMLCompressorFilterSpec extends Specification {
         // we don't want to further pass this through HTML Compressor
 
         val original = ByteString(IOUtils.toByteArray(environment.resourceAsStream("static.html").get))
-        val Some(result) = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip"))
+        val result = route(gzipApp, FakeRequest(GET, "/gzipped").withHeaders(ACCEPT_ENCODING -> "gzip")).get
 
         status(result) must beEqualTo(OK)
         contentType(result) must beSome("text/html")
