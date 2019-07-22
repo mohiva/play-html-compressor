@@ -1,4 +1,8 @@
-This project is not maintained anymore. If someone is interessted to maintain a fork, please feel free to contact me so that I can add a link here.
+# This project is not maintained anymore.
+
+A fork can be found under: https://github.com/fkoehler/play-html-compressor
+
+
 
 # Google's HTML (and XML) Compressor for Play Framework 2 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.mohiva/play-html-compressor_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.mohiva/play-html-compressor_2.11) [![Build Status](https://travis-ci.org/mohiva/play-html-compressor.png)](https://travis-ci.org/mohiva/play-html-compressor)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mohiva/play-html-compressor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
